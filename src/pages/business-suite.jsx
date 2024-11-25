@@ -225,7 +225,7 @@ function BusinessSuite() {
   // Update getAllPage to also handle running states
   const getAllPage = async () => {
     try {
-      const response = await fetch("http://localhost:3000/getAllPage", {
+      const response = await fetch("http://192.168.100.76:3000/getAllPage", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -267,7 +267,7 @@ function BusinessSuite() {
 
   const fetchNewPage = async () => {
     try {
-      const response = await fetch("http://localhost:3000/fetchNewPage", {
+      const response = await fetch("http://192.168.100.76:3000/fetchNewPage", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -292,7 +292,7 @@ function BusinessSuite() {
   };
   const resetStatus = async () => {
     try {
-      const response = await fetch("http://localhost:3000/resetStatus", {
+      const response = await fetch("http://192.168.100.76:3000/resetStatus", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -339,7 +339,7 @@ function BusinessSuite() {
     console.log("ProcessId: ", processId);
 
     try {
-      const response = await fetch("http://localhost:3000/blast", {
+      const response = await fetch("http://192.168.100.76:3000/blast", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -376,7 +376,7 @@ function BusinessSuite() {
     setStoppingAssetIds((prev) => new Set([...prev, asset_id]));
 
     try {
-      const response = await fetch("http://localhost:3000/cancel", {
+      const response = await fetch("http://192.168.100.76:3000/cancel", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
