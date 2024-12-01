@@ -50,7 +50,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="pl-4 pt-4 flex">
+      <SidebarHeader className="pl-4 pt-4 pb-6 flex">
         <div className="flex items-center">
           <Avatar className="mr-2 h-9 w-9">
             <AvatarImage src={logo} alt="@shadcn" className="rounded-lg" />

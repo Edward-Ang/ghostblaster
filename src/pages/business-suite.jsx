@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCcwIcon, MoreVerticalIcon } from "lucide-react";
 import { MdElectricBolt } from "react-icons/md";
-import { FiTool } from "react-icons/fi";
 import { GrPowerReset } from "react-icons/gr";
 import { format } from "date-fns";
 import {
@@ -33,27 +32,15 @@ function BusinessSuite() {
   const { toast } = useToast();
   const [data, setData] = useState([]);
   const titleRef = useRef();
+  const userRef = useRef();
   const [runningAssetIds, setRunningAssetIds] = useState({});
   const [stoppingAssetIds, setStoppingAssetIds] = useState(new Set());
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  // Add polling interval for status updates
-  // useEffect(() => {
-  //   // Only poll if there are running processes AND dialog is not open
-  //   if (Object.keys(runningAssetIds).length > 0 && !isDialogOpen) {
-  //     const pollInterval = setInterval(() => {
-  //       console.log(runningAssetIds);
-  //       getAllPage();
-  //     }, 2000);
-
-  //     return () => clearInterval(pollInterval);
-  //   }
-  // }, [runningAssetIds, isDialogOpen]);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       await getAllPage(); // Wait for getAllPage to finish
-      refreshStatus(); // Execute refreshStatus after getAllPage
+      await refreshStatus(); // Execute refreshStatus after getAllPage
     };
 
     fetchData();
@@ -87,12 +74,6 @@ function BusinessSuite() {
           <div className="text-left m-2">
             {(() => {
               switch (info.getValue()) {
-                case "0":
-                  return (
-                    <Badge variant="secondary" className="bg-blue-100">
-                      New
-                    </Badge>
-                  );
                 case "1":
                   return (
                     <Badge variant="success" className="bg-green-100">
@@ -107,6 +88,18 @@ function BusinessSuite() {
                   );
                 case "3":
                   return <Badge variant="secondary">Not Started</Badge>;
+                case "4":
+                  return (
+                    <Badge variant="secondary" className="bg-blue-100">
+                      New
+                    </Badge>
+                  );
+                case "5":
+                  return (
+                    <Badge variant="secondary" className="bg-purple-100">
+                      Blasting
+                    </Badge>
+                  );
                 default:
                   return (
                     <Badge variant="warning" className="bg-red-200">
@@ -131,9 +124,7 @@ function BusinessSuite() {
 
           // Don't show running state if status is completed, failed, or stopped
           const shouldShowRunning =
-            isThisRowRunning &&
-            !["1", "2", "4"].includes(currentStatus) &&
-            !isThisRowStopping;
+            (isThisRowRunning && !isThisRowStopping) || currentStatus == "5";
 
           return (
             <div className="flex justify-start items-center gap-2 mx-2">
@@ -161,21 +152,35 @@ function BusinessSuite() {
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>Start a Blast</DialogTitle>
+                      <DialogTitle>Start to blast</DialogTitle>
                       <DialogDescription>
-                        Provide the blast content title to initiate the blasting
+                        Provide the blast title to initiate the blasting
                         process.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="title" className="text-right">
-                          Title
+                          Title{" "}
+                          <span aria-hidden="true" className="text-red-500">
+                            *
+                          </span>
                         </Label>
                         <Input
                           id="title"
                           ref={titleRef}
-                          placeholder="Enter Title"
+                          placeholder="Blast Title"
+                          className="col-span-3"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="title" className="text-right">
+                          Stop at
+                        </Label>
+                        <Input
+                          id="user"
+                          ref={userRef}
+                          placeholder="User Name"
                           className="col-span-3"
                         />
                       </div>
@@ -184,7 +189,11 @@ function BusinessSuite() {
                       <Button
                         type="button"
                         onClick={() =>
-                          handleBlast(rowAssetId, titleRef.current.value)
+                          handleBlast(
+                            rowAssetId,
+                            titleRef.current.value,
+                            userRef.current.value
+                          )
                         }
                       >
                         Blast
@@ -208,14 +217,17 @@ function BusinessSuite() {
     }
 
     setRunningAssetIds((prev) => {
-      // Filter out asset_ids where status === 4
-      const assetIdsToRemove = data
-        .filter((item) => item.status === 4)
-        .map((item) => item.asset_id);
-
-      // Create a new state excluding the matching asset_ids
+      // Keep running states for items that are still processing
       const newState = Object.fromEntries(
-        Object.entries(prev).filter(([key]) => !assetIdsToRemove.includes(key))
+        Object.entries(prev).filter((entry) => {
+          const [assetId, processId] = entry;
+          const correspondingItem = data.find(
+            (item) =>
+              item.asset_id === assetId &&
+              (item.status === "5" || item.status === null) // Add logic to keep running states
+          );
+          return correspondingItem !== undefined;
+        })
       );
 
       return newState;
@@ -225,7 +237,7 @@ function BusinessSuite() {
   // Update getAllPage to also handle running states
   const getAllPage = async () => {
     try {
-      const response = await fetch("http://localhost:3000/getAllPage", {
+      const response = await fetch(`${backendUrl}/getAllPage`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -240,8 +252,8 @@ function BusinessSuite() {
         setRunningAssetIds((prev) => {
           const newRunningIds = { ...prev };
           data.result.forEach((item) => {
-            // Remove from running if status is completed, failed, or stopped
-            if (["1", "2", "4"].includes(item.status)) {
+            // Only remove from running if truly completed or stopped
+            if (["1", "2"].includes(item.status)) {
               delete newRunningIds[item.asset_id];
               setStoppingAssetIds((prev) => {
                 const newSet = new Set(prev);
@@ -267,7 +279,7 @@ function BusinessSuite() {
 
   const fetchNewPage = async () => {
     try {
-      const response = await fetch("http://localhost:3000/fetchNewPage", {
+      const response = await fetch(`${backendUrl}/fetchNewPage`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -292,7 +304,7 @@ function BusinessSuite() {
   };
   const resetStatus = async () => {
     try {
-      const response = await fetch("http://localhost:3000/resetStatus", {
+      const response = await fetch(`${backendUrl}/resetStatus`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -326,7 +338,7 @@ function BusinessSuite() {
     }
   };
 
-  const handleBlast = async (asset_id, title) => {
+  const handleBlast = async (asset_id, title, username) => {
     if (!title || title.trim() === "") {
       return;
     }
@@ -339,7 +351,7 @@ function BusinessSuite() {
     console.log("ProcessId: ", processId);
 
     try {
-      const response = await fetch("http://localhost:3000/blast", {
+      const response = await fetch(`${backendUrl}/blast`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -347,6 +359,7 @@ function BusinessSuite() {
         body: JSON.stringify({
           asset_id: asset_id,
           title: title,
+          stop_at: username,
           process_id: processId,
         }),
       });
@@ -370,19 +383,19 @@ function BusinessSuite() {
   };
 
   const handleStopBlast = async (asset_id) => {
-    const processId = runningAssetIds[asset_id];
+    // const processId = runningAssetIds[asset_id];
 
     // Immediately mark as stopping
     setStoppingAssetIds((prev) => new Set([...prev, asset_id]));
 
     try {
-      const response = await fetch("http://localhost:3000/cancel", {
+      const response = await fetch(`${backendUrl}/cancel`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          process_id: processId,
+          asset_id: asset_id,
         }),
       });
 
@@ -424,15 +437,19 @@ function BusinessSuite() {
   return (
     <div className="flex flex-col w-full min-h-screen">
       {/* Header */}
-      <header className="text-black p-4 shadow-md">
+      <header
+        className="text-black bg-white p-4 shadow-md sticky top-0"
+        style={{ zIndex: 2 }}
+      >
         <h1 className="text-lg font-bold">Business Suite</h1>
       </header>
 
       {/* Main Content */}
       <main className="flex-grow">
         <div className="flex justify-end p-6 py-4 gap-2">
-          <Button variant="outline" className="h-10 w-10" onClick={resetStatus}>
+          <Button className="h-10" onClick={resetStatus}>
             <GrPowerReset />
+            Reset status
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -453,7 +470,7 @@ function BusinessSuite() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="px-6">
+        <div className="px-6 pb-6">
           <DataTable columns={column} data={data} />
         </div>
       </main>

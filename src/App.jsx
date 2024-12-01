@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { AppSidebar } from "@/components/app-sidebar";
+import Home from "./pages/home";
 import BusinessSuite from "@/pages/business-suite";
 import Instagram from "@/pages/instagram";
 import "./App.css";
@@ -22,11 +23,12 @@ function App() {
         <div className="relative w-full">
           <SidebarTrigger
             className="absolute top-0 left-0 mt-2 ml-2 w-10 h-10"
+            style={{ zIndex: 3 }}
             onClick={() => setSidebarOpen(!isSidebarOpen)}
           />
           <div className="">
             <Routes>
-              <Route path="/" element={<div>Hello</div>} />
+              <Route path="/" element={<Home />} />
               <Route path="/business-suite" element={<BusinessSuite />} />
               <Route path="/instagram" element={<Instagram />} />
             </Routes>
