@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCcwIcon, MoreVerticalIcon } from "lucide-react";
+import {
+  Loader2,
+  RefreshCcwIcon,
+  MoreVerticalIcon,
+  CheckCircle2,
+  InfoIcon,
+} from "lucide-react";
+import { FaMeta } from "react-icons/fa6";
 import { MdElectricBolt } from "react-icons/md";
 import { GrPowerReset } from "react-icons/gr";
 import { format } from "date-fns";
@@ -24,6 +31,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import { columns } from "@/lib/columns";
 import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +39,7 @@ import { Badge } from "@/components/ui/badge";
 function BusinessSuite() {
   const { toast } = useToast();
   const [data, setData] = useState([]);
+  const [filterValue, setFilterValue] = useState("");
   const titleRef = useRef();
   const userRef = useRef();
   const [runningAssetIds, setRunningAssetIds] = useState({});
@@ -45,6 +54,10 @@ function BusinessSuite() {
 
     fetchData();
   }, []);
+
+  const filteredData = data.filter((item) =>
+    item.page_name.toLowerCase().includes(filterValue.toLowerCase())
+  );
 
   const column = [...columns].map((col) => {
     if (col.accessorKey === "page_name") {
@@ -61,7 +74,18 @@ function BusinessSuite() {
         cell: (info) => {
           const value = info.getValue();
           const date = value ? new Date(value) : null;
-          const localDate = date ? format(date, "yyyy-MM-dd HH:mm:ss") : ""; // Format only if date is valid
+          const localDate = date
+            ? date
+                .toLocaleString("en-GB", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })
+                .replace(",", "")
+            : "";
           return <div className="text-left m-2">{localDate}</div>;
         },
       };
@@ -266,18 +290,24 @@ function BusinessSuite() {
         });
       } else {
         const errorData = await response.json();
-        toast({
-          description: errorData.error,
-        });
+        console.log(errorData.error);
       }
     } catch (error) {
-      toast({
-        description: `Error: ${error.message}`,
-      });
+      console.log(error.message);
     }
   };
 
   const fetchNewPage = async () => {
+    const loadingToast = toast({
+      description: (
+        <div className="flex items-center top-4 right-4">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin text-blue-500" />
+          Fetching new page...
+        </div>
+      ),
+      duration: Infinity, // Will not automatically close
+    });
+
     try {
       const response = await fetch(`${backendUrl}/fetchNewPage`, {
         method: "GET",
@@ -285,6 +315,9 @@ function BusinessSuite() {
           "Content-Type": "application/json",
         },
       });
+
+      // Dismiss the loading toast
+      loadingToast.dismiss();
 
       if (response.ok) {
         toast({
@@ -295,13 +328,24 @@ function BusinessSuite() {
         const errorData = await response.json();
         console.log(errorData);
         toast({
-          description: `${errorData.error}`,
+          description: "Failed to fetch new page",
+          variant: "destructive", // Optional: use a red/error variant
+          duration: 5000,
         });
       }
     } catch (error) {
+      // Dismiss the loading toast in case of an error
+      loadingToast.dismiss();
+
       console.log(`Error: ${error.message}`);
+      toast({
+        description: "Failed to fetch new page",
+        variant: "destructive",
+        duration: 5000,
+      });
     }
   };
+
   const resetStatus = async () => {
     try {
       const response = await fetch(`${backendUrl}/resetStatus`, {
@@ -313,28 +357,14 @@ function BusinessSuite() {
 
       if (response.ok) {
         const data = await response.json(); // Parse the JSON response
-        console.log("Successfully reset all statuses.");
         getAllPage();
-        toast({
-          description: `Successfully reset ${data.updatedRows} statuses.`,
-          status: "success",
-        });
+        console.log(`Successfully reset ${data.updatedRows} statuses.`);
       } else {
         const errorData = await response.json();
         console.error("Error:", errorData);
-
-        toast({
-          description: errorData.error || "Failed to reset statuses.",
-          status: "error",
-        });
       }
     } catch (error) {
       console.error("Fetch failed:", error);
-
-      toast({
-        description: `Fetch error: ${error.message}`,
-        status: "error",
-      });
     }
   };
 
@@ -351,7 +381,13 @@ function BusinessSuite() {
     console.log("ProcessId: ", processId);
 
     try {
-      const response = await fetch(`${backendUrl}/blast`, {
+      toast({
+        title: "Check your notifications in Facebook",
+        description: "Please approve login to enable blast",
+        action: <ToastAction altText="Goto schedule to undo">Done</ToastAction>,
+        duration: Infinity,
+      });
+      const response = await fetch(`${backendUrl}/blastBS`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -366,15 +402,17 @@ function BusinessSuite() {
 
       if (response.ok) {
         toast({
-          description: "Blast successfully!",
+          description: (
+            <div className="flex items-center">
+              <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+              Blast successfully!
+            </div>
+          ),
         });
         getAllPage();
       } else {
         const errorData = await response.json();
         console.log(errorData);
-        toast({
-          description: `${errorData.error}`,
-        });
         getAllPage();
       }
     } catch (error) {
@@ -389,7 +427,7 @@ function BusinessSuite() {
     setStoppingAssetIds((prev) => new Set([...prev, asset_id]));
 
     try {
-      const response = await fetch(`${backendUrl}/cancel`, {
+      const response = await fetch(`${backendUrl}/cancelBS`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -401,7 +439,12 @@ function BusinessSuite() {
 
       if (response.ok) {
         toast({
-          description: "Blasting is successfully stopped!",
+          description: (
+            <div className="flex items-center">
+              <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+              Blasting successfully stopped!
+            </div>
+          ),
         });
 
         // Remove from running processes immediately
@@ -416,13 +459,25 @@ function BusinessSuite() {
         await getAllPage();
       } else {
         const errorData = await response.json();
+        console.log("here", errorData.error);
         toast({
-          description: errorData.error || "Unknown error.",
+          description: (
+            <div className="flex items-center">
+              <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+              {errorData.error}
+            </div>
+          ),
         });
       }
     } catch (error) {
+      console.log("Stop blast: ", error.message);
       toast({
-        description: `Error: ${error.message}`,
+        description: (
+          <div className="flex items-center">
+            <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+            {error.message}
+          </div>
+        ),
       });
     } finally {
       // Remove from stopping state
@@ -438,47 +493,53 @@ function BusinessSuite() {
     <div className="flex flex-col w-full min-h-screen">
       {/* Header */}
       <header
-        className="text-black bg-white p-4 shadow-md sticky top-0"
+        className="flex justify-center text-black bg-white p-4 shadow-md sticky top-0"
         style={{ zIndex: 2 }}
       >
-        <h1 className="text-lg font-bold">Business Suite</h1>
+        <h1 className="text-lg font-bold flex items-center gap-2">
+          <FaMeta className="text-[#0866FF] text-xl" />
+          Business Suite
+        </h1>
       </header>
 
       {/* Main Content */}
       <main className="flex-grow">
-        <div className="flex justify-end p-6 py-4 gap-2">
-          <Button className="h-10" onClick={resetStatus}>
-            <GrPowerReset />
-            Reset status
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-10 w-10 focus:none focus:ring-0"
-              >
-                <MoreVerticalIcon />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="mr-6">
-              <DropdownMenuLabel>Tools</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={fetchNewPage}>
-                <RefreshCcwIcon />
-                Fetch new page
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
         <div className="px-6 pb-6">
-          <DataTable columns={column} data={data} />
+          <div className="flex justify-between items-center gap-4 my-4">
+            <Input
+              placeholder="Filter by page name..."
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+              className="max-w-sm h-10"
+            />
+            <div className="flex justify-end gap-2">
+              <Button className="h-10" onClick={resetStatus}>
+                <GrPowerReset />
+                Reset status
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-10 w-10 focus:none focus:ring-0"
+                  >
+                    <MoreVerticalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="mr-6">
+                  <DropdownMenuLabel>Tools</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={fetchNewPage}>
+                    <RefreshCcwIcon />
+                    Fetch new page
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          <DataTable columns={column} data={filteredData} />
         </div>
       </main>
-
-      {/* Footer */}
-      {/* <footer className="bg-gray-800 text-white text-center p-4">
-        &copy; {new Date().getFullYear()} Business Suite. All rights reserved.
-      </footer> */}
     </div>
   );
 }

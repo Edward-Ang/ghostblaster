@@ -34,12 +34,13 @@ export function Chart() {
   const [chartData, setChartData] = React.useState([]);
   const [activeChart, setActiveChart] = React.useState("bs");
   const [loading, setLoading] = React.useState(true);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch data from your database
   React.useEffect(() => {
     async function fetchChartData() {
       try {
-        const response = await fetch("http://localhost:3001/getReportData"); // Replace with your actual API endpoint
+        const response = await fetch(`${backendUrl}/getReportData`); // Replace with your actual API endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch chart data");
         }
@@ -83,7 +84,7 @@ export function Chart() {
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle>2024</CardTitle>
+          <CardTitle>2025</CardTitle>
           <CardDescription>
             Showing total blast for each day in this year
           </CardDescription>
