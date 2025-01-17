@@ -1,5 +1,5 @@
 import { Home, Settings, User, ChevronsUpDown, LogOut } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,8 +45,15 @@ const items = [
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ setIsAuthenticated }) {
   const location = useLocation(); // Get the current location
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated"); // Remove authentication state
+    setIsAuthenticated(false); // Update authentication state in App.js
+    navigate("/"); // Redirect to the login page
+  };
 
   return (
     <Sidebar>
@@ -72,7 +79,7 @@ export function AppSidebar() {
                 }`}
               >
                 <SidebarMenuButton asChild>
-                  <Link to="/" className="flex items-center space-x-2">
+                  <Link to="/home" className="flex items-center space-x-2">
                     <Home />
                     <span>Home</span>
                   </Link>
@@ -107,7 +114,10 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton size="lg" className="focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-transparent">
+                <SidebarMenuButton
+                  size="lg"
+                  className="focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-transparent"
+                >
                   <Avatar className="mr-0 h-9 w-9">
                     <AvatarImage
                       src="https://github.com/shadcn.png"
@@ -128,7 +138,7 @@ export function AppSidebar() {
                   <span>Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
