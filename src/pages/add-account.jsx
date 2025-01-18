@@ -1,5 +1,5 @@
 // src/pages/Login.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +16,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CgSpinnerAlt } from "react-icons/cg";
 import BsHeader from "@/components/bs-header";
 
-function AddAccount({ setIsAuthenticated }) {
+function AddAccount() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [userid, setUserid] = useState("");
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+
+  // Fetch the value of isRegistered from localStorage when the component mounts
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      setUserid(userId); // Set the state with the value from localStorage
+    }
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,30 +43,29 @@ function AddAccount({ setIsAuthenticated }) {
 
     // Simulate a login request
     try {
-      const response = await fakeLoginApi(email, password);
-      if (response.success) {
-        localStorage.setItem("isAuthenticated", "true"); // Set authentication state
-        setIsAuthenticated(true); // Update authentication state in App.js
-        navigate("/home"); // Redirect to home page after successful login
+      const response = await fetch(`${backendUrl}/addAccount`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          userid: userid,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("data: ", data);
+
+      if (data.status) {
+        window.location.reload();
       } else {
         setError("Invalid email or password");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
     }
-  };
-
-  const fakeLoginApi = (email, password) => {
-    // Simulate an API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (email === "testing@gmail.com" && password === "123") {
-          resolve({ success: true });
-        } else {
-          resolve({ success: false });
-        }
-      }, 1000);
-    });
   };
 
   return (

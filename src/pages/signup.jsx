@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState(""); // New state for username
   const [error, setError] = useState("");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ function Signup() {
     e.preventDefault();
 
     // Basic validation
-    if (!email || !password) {
+    if (!email || !password || !username) {
       setError("Please fill in all fields");
       return;
     }
@@ -39,16 +39,15 @@ function Signup() {
         body: JSON.stringify({
           email: email,
           password: password,
+          username: username, // Include username in the request body
         }),
       });
 
       const data = await response.json(); // Parse the JSON response
 
-      console.log(data);
-
       if (response.ok) {
         localStorage.setItem("isRegistered", "true"); // Set registration state
-        navigate("/login"); // Redirect to home page after successful signup
+        navigate("/login"); // Redirect to login page after successful signup
       } else {
         setError(data.error || "Signup failed. Please try again."); // Use the error message from the backend
       }
@@ -70,6 +69,18 @@ function Signup() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+            <div className="space-y-2">
+              <Label htmlFor="username" className="block text-left w-full pl-2">
+                Username
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="block text-left w-full pl-2">
                 Email

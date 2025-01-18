@@ -54,6 +54,7 @@ function Login({ setIsAuthenticated }) {
 
       if (response.ok) {
         localStorage.setItem("isAuthenticated", "true"); // Set authentication state
+        localStorage.setItem("userId", data.user.id);
         setIsAuthenticated(true); // Update authentication state in App.js
         localStorage.removeItem("isRegistered"); // Remove isRegistered from localStorage
         navigate("/home"); // Redirect to home page after successful login
