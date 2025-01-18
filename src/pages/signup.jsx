@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react"; // Import useEffect
+// src/pages/Signup.jsx
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,21 +14,12 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-function Login({ setIsAuthenticated }) {
+function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [registered, setRegistered] = useState(""); // State for isRegistered
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
-
-  // Fetch the value of isRegistered from localStorage when the component mounts
-  useEffect(() => {
-    const isRegistered = localStorage.getItem("isRegistered");
-    if (isRegistered) {
-      setRegistered(isRegistered); // Set the state with the value from localStorage
-    }
-  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +31,7 @@ function Login({ setIsAuthenticated }) {
     }
 
     try {
-      const response = await fetch(`${backendUrl}/login`, {
+      const response = await fetch(`${backendUrl}/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,39 +44,26 @@ function Login({ setIsAuthenticated }) {
 
       const data = await response.json(); // Parse the JSON response
 
+      console.log(data);
+
       if (response.ok) {
-        localStorage.setItem("isAuthenticated", "true"); // Set authentication state
-        setIsAuthenticated(true); // Update authentication state in App.js
-        localStorage.removeItem("isRegistered"); // Remove isRegistered from localStorage
-        navigate("/home"); // Redirect to home page after successful login
+        localStorage.setItem("isRegistered", "true"); // Set registration state
+        navigate("/login"); // Redirect to home page after successful signup
       } else {
-        setError(data.error || "Invalid email or password"); // Use the error message from the backend
+        setError(data.error || "Signup failed. Please try again."); // Use the error message from the backend
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
     }
   };
 
-  const handleSignUpClick = () => {
-    localStorage.removeItem("isRegistered"); // Remove isRegistered from localStorage
-    navigate("/signup"); // Navigate to the signup page
-  };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardTitle className="text-2xl font-bold">Signup</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Display a success message if the user just registered */}
-          {registered && (
-            <Alert className="mb-4 bg-green-50 border-l-4 border-green-400 p-4">
-              <AlertDescription className="text-green-700">
-                Registration successful! Please log in.
-              </AlertDescription>
-            </Alert>
-          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <Alert variant="destructive">
@@ -116,19 +95,16 @@ function Login({ setIsAuthenticated }) {
               />
             </div>
             <Button type="submit" className="w-full">
-              Login
+              Signup
             </Button>
           </form>
         </CardContent>
         <CardFooter>
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <button
-              onClick={handleSignUpClick}
-              className="text-blue-500 hover:underline focus:outline-none"
-            >
-              Sign up
-            </button>
+            Already have an account?
+            <a href="/login" className="text-blue-500 hover:underline">
+              Log in
+            </a>
           </p>
         </CardFooter>
       </Card>
@@ -136,4 +112,4 @@ function Login({ setIsAuthenticated }) {
   );
 }
 
-export default Login;
+export default Signup;

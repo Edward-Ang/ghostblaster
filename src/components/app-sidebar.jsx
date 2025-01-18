@@ -1,4 +1,5 @@
-import { Home, Settings, User, ChevronsUpDown, LogOut } from "lucide-react";
+import { useState } from "react"; // Add this import
+import { Home, Settings, User, ChevronsUpDown, LogOut, ChevronDown, ChevronUp, LinkIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -30,29 +31,64 @@ import logo from "../assets/logo.png";
 const items = [
   {
     title: "Business Suite",
-    url: "/business-suite",
     icon: FaMeta,
+    subItems: [
+      {
+        title: "Edward Ang",
+        url: "/business-suite",
+      },
+      {
+        title: "Analytics",
+        url: "/business-suite/analytics",
+      },
+      {
+        title: "Reports",
+        url: "/business-suite/reports",
+      },
+      {
+        title: "Analytics",
+        url: "/business-suite/analytics",
+      },
+      {
+        title: "Reports",
+        url: "/business-suite/reports",
+      },
+      {
+        title: "Add Account",
+        url: "/add-account",
+      },
+    ],
   },
   {
     title: "Instagram",
-    url: "/instagram",
     icon: FaInstagram,
+    subItems: [
+    ],
   },
   {
     title: "Settings",
-    url: "/settings",
     icon: Settings,
+    url: "/settings", // No sub-items for Settings
   },
 ];
 
 export function AppSidebar({ setIsAuthenticated }) {
   const location = useLocation(); // Get the current location
   const navigate = useNavigate();
+  const [expandedItems, setExpandedItems] = useState({}); // State to track expanded submenus
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated"); // Remove authentication state
     setIsAuthenticated(false); // Update authentication state in App.js
     navigate("/"); // Redirect to the login page
+  };
+
+  // Toggle submenu expansion
+  const toggleSubmenu = (title) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [title]: !prev[title], // Toggle the expanded state for the specific item
+    }));
   };
 
   return (
@@ -91,19 +127,63 @@ export function AppSidebar({ setIsAuthenticated }) {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  className={`${
-                    location.pathname === item.url ? "bg-gray-200 rounded" : ""
-                  }`}
-                >
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url} className="flex items-center space-x-2">
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <div key={item.title}>
+                  <SidebarMenuItem
+                    className={`${
+                      location.pathname === item.url ? "bg-gray-200 rounded" : ""
+                    }`}
+                  >
+                    <SidebarMenuButton
+                    className='mb-1'
+                      asChild={!item.subItems} // Render as Link if no sub-items
+                      onClick={() => item.subItems && toggleSubmenu(item.title)} // Toggle submenu if sub-items exist
+                    >
+                      {item.subItems ? (
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center space-x-2">
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </div>
+                          {expandedItems[item.title] ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </div>
+                      ) : (
+                        <Link to={item.url} className="flex items-center space-x-2">
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {item.subItems && expandedItems[item.title] && ( // Render sub-items if expanded
+                    <div className="pl-6">
+                      <SidebarMenu>
+                        {item.subItems.map((subItem) => (
+                          <SidebarMenuItem
+                            key={subItem.title}
+                            className={`${
+                              location.pathname === subItem.url
+                                ? "bg-gray-200 rounded"
+                                : ""
+                            }`}
+                          >
+                            <SidebarMenuButton asChild>
+                              <Link
+                                to={subItem.url}
+                                className="flex items-center space-x-2"
+                              >
+                                <span>{subItem.title}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </div>
+                  )}
+                </div>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

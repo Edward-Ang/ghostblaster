@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   InfoIcon,
 } from "lucide-react";
-import { FaMeta } from "react-icons/fa6";
 import { MdElectricBolt } from "react-icons/md";
 import { GrPowerReset } from "react-icons/gr";
 import { format } from "date-fns";
@@ -35,6 +34,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { columns } from "@/lib/columns";
 import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
+import BsHeader from "@/components/bs-header";
 
 function BusinessSuite() {
   const { toast } = useToast();
@@ -491,16 +491,7 @@ function BusinessSuite() {
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      {/* Header */}
-      <header
-        className="flex justify-center text-black bg-white p-4 shadow-md sticky top-0"
-        style={{ zIndex: 2 }}
-      >
-        <h1 className="text-lg font-bold flex items-center gap-2">
-          <FaMeta className="text-[#0866FF] text-xl" />
-          Business Suite
-        </h1>
-      </header>
+      <BsHeader />
 
       {/* Main Content */}
       <main className="flex-grow">

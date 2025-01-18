@@ -13,6 +13,8 @@ import Home from "./pages/home";
 import BusinessSuite from "@/pages/business-suite";
 import Instagram from "@/pages/instagram";
 import Login from "./pages/login";
+import Signup from "./pages/signup";
+import AddAccount from "./pages/add-account";
 import "./App.css";
 
 function App() {
@@ -39,6 +41,7 @@ function App() {
             )
           }
         />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Protected Routes: Wrap everything else in a Route */}
         <Route
@@ -68,6 +71,7 @@ function App() {
                         element={<BusinessSuite />}
                       />
                       <Route path="/instagram" element={<Instagram />} />
+                      <Route path="/add-account" element={<AddAccount />} />
                     </Routes>
                   </div>
                 </div>
