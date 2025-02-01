@@ -67,7 +67,6 @@ export function AppSidebar({ setIsAuthenticated }) {
   useEffect(() => {
     // Fetch the current user's record
     const fetchCurrentUser = async () => {
-
       if (!userid) {
         console.error("userid is missing");
         return;
@@ -129,7 +128,7 @@ export function AppSidebar({ setIsAuthenticated }) {
                     title: "+", // Use "+" as the title
                     url: "/add-account",
                     isAddAccount: true, // Flag to identify the "Add Account" sub-item
-                    className: "bg-blue-100 rounded",
+                    className: "bg-gray-950 text-white rounded",
                   }, // Add "Add Account" at the end
                 ],
               };
@@ -220,7 +219,7 @@ export function AppSidebar({ setIsAuthenticated }) {
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center space-x-2">
                             <item.icon />
-                            <span>{item.title}</span>
+                            <span className="pl-2">{item.title}</span>
                           </div>
                           {expandedItems[item.title] ? (
                             <ChevronUp className="h-4 w-4" />
@@ -241,7 +240,7 @@ export function AppSidebar({ setIsAuthenticated }) {
                   </SidebarMenuItem>
                   {item.subItems &&
                     expandedItems[item.title] && ( // Render sub-items if expanded
-                      <div className="pl-6">
+                      <div className="pl-8">
                         <SidebarMenu>
                           {item.subItems.map((subItem) => (
                             <SidebarMenuItem
@@ -252,14 +251,21 @@ export function AppSidebar({ setIsAuthenticated }) {
                                   : ""
                               } ${subItem.className || ""}`} // Apply custom className
                             >
-                              <SidebarMenuButton asChild>
+                              <SidebarMenuButton
+                                className={`${
+                                  subItem.isAddAccount
+                                    ? "hover:bg-gray-700 hover:text-white active:bg-gray-950 active:text-white"
+                                    : "hover:bg-gray-200"
+                                }`}
+                                asChild
+                              >
                                 <Link
                                   to={subItem.url}
                                   className={`flex items-center space-x-2 ${
                                     subItem.isAddAccount
                                       ? "justify-center text-xl"
                                       : ""
-                                  }`} // Apply custom className only for "Add Account"
+                                  }`}
                                 >
                                   <span>{subItem.title}</span>
                                 </Link>

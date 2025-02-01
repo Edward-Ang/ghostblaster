@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 const columnHelper = createColumnHelper();
 
 export const columns = [
-  columnHelper.accessor("page_name", {
-    header: "Page Name",
+  columnHelper.accessor("username", {
+    header: "Account",
   }),
   columnHelper.accessor("updated_at", {
     header: "Last Blast",
