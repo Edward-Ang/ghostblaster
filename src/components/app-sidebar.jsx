@@ -79,7 +79,7 @@ export function AppSidebar({ setIsAuthenticated }) {
         const data = await response.json();
 
         if (response.ok) {
-          console.log("Current user fetched successfully:", data.user);
+          console.log("Current user fetched successfully:", data.user.username);
 
           // Update the UI with the current user's data
           // For example, set the username in the sidebar header
@@ -147,7 +147,7 @@ export function AppSidebar({ setIsAuthenticated }) {
 
     // Call both functions
     fetchCurrentUser();
-    fetchAllAccounts();
+    // fetchAllAccounts();
   }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleLogout = () => {

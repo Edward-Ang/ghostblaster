@@ -5,8 +5,8 @@ import {
   RefreshCcwIcon,
   MoreVerticalIcon,
   TrashIcon,
-  Check,
   CheckCircle2,
+  StopCircleIcon,
   InfoIcon,
 } from "lucide-react";
 import { MdElectricBolt } from "react-icons/md";
@@ -63,11 +63,13 @@ function Instagram() {
   const [userid, setUserid] = useState("");
   const fileInputRef = useRef();
   const contentRef = useRef();
+  const limitRef = useRef(null);
   const { toast } = useToast();
   const [data, setData] = useState([]);
   const [filterValue, setFilterValue] = useState("");
   const [runningAssetIds, setRunningAssetIds] = useState({});
   const [stoppingAssetIds, setStoppingAssetIds] = useState(new Set());
+  const [isBlastDialogOpen, setIsBlastDialogOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -88,9 +90,18 @@ function Instagram() {
     fetchData();
   }, []);
 
-  const filteredData = data.filter((item) =>
-    item.username.toLowerCase().includes(filterValue.toLowerCase())
-  );
+  const filteredData = data
+    .filter((item) =>
+      item.username.toLowerCase().includes(filterValue.toLowerCase())
+    )
+    .sort((a, b) => {
+      // First sort by status
+      if (b.status !== a.status) {
+        return b.status - a.status;
+      }
+      // If status is equal, maintain original order or add secondary sort criterion
+      return 0;
+    });
 
   const column = [...columns].map((col) => {
     if (col.accessorKey === "username") {
@@ -127,46 +138,65 @@ function Instagram() {
       return {
         ...col,
         header: () => <div className="font-bold m-2 ml-4">Status</div>,
-        cell: (info) => (
-          <div className="text-left m-2">
-            {(() => {
-              switch (info.getValue()) {
-                case "1":
-                  return (
-                    <Badge variant="success" className="bg-green-100">
-                      Completed
-                    </Badge>
-                  );
-                case "2":
-                  return (
-                    <Badge variant="warning" className="bg-yellow-100">
-                      Stopped
-                    </Badge>
-                  );
-                case "3":
-                  return <Badge variant="secondary">Not Started</Badge>;
-                case "4":
-                  return (
-                    <Badge variant="secondary" className="bg-blue-100">
-                      New
-                    </Badge>
-                  );
-                case "5":
-                  return (
-                    <Badge variant="secondary" className="bg-purple-100">
-                      Blasting
-                    </Badge>
-                  );
-                default:
-                  return (
-                    <Badge variant="warning" className="bg-red-200">
-                      Failed
-                    </Badge>
-                  );
-              }
-            })()}
-          </div>
-        ),
+        cell: (info) => {
+          const username = info.row.original.username;
+          const isBlasting = runningAssetIds[username] !== undefined;
+          const isThisRowStopping = stoppingAssetIds.has(username);
+
+          // Override status to "Blasting" if the username is in runningAssetIds
+          const status = isBlasting ? "6" : info.getValue();
+
+          return (
+            <div className="text-left m-2">
+              {(() => {
+                switch (status) {
+                  case "1":
+                    return (
+                      <Badge variant="success" className="bg-green-100">
+                        Completed
+                      </Badge>
+                    );
+                  case "2":
+                    return (
+                      <Badge variant="warning" className="bg-gray-100">
+                        Not Started
+                      </Badge>
+                    );
+                  case "3":
+                    return (
+                      <Badge variant="warning" className="bg-red-200">
+                        Failed
+                      </Badge>
+                    );
+                  case "4":
+                    return (
+                      <Badge variant="warning" className="bg-yellow-100">
+                        Stopped
+                      </Badge>
+                    );
+                  case "5":
+                    return (
+                      <Badge variant="warning" className="bg-blue-100">
+                        New
+                      </Badge>
+                    );
+                  case "6":
+                    return (
+                      <Badge variant="warning" className="bg-purple-200">
+                        {isThisRowStopping ? "Stopping" : "Blasting"}
+                      </Badge>
+                    );
+                  default:
+                    return (
+                      <Badge variant="warning" className="bg-red-200">
+                        Error
+                      </Badge>
+                    );
+                }
+              })()}
+            </div>
+          );
+        },
       };
     }
     if (col.accessorKey === "actions") {
@@ -174,29 +204,29 @@ function Instagram() {
         ...col,
         header: () => <div className="font-bold m-2">Actions</div>,
         cell: (info) => {
-          const rowAssetId = info.row.original.asset_id;
           const username = info.row.original.username;
-          const isThisRowRunning = runningAssetIds[rowAssetId];
-          const isThisRowStopping = stoppingAssetIds.has(rowAssetId);
+          const isThisRowRunning = runningAssetIds[username];
+          const isThisRowStopping = stoppingAssetIds.has(username);
           const currentStatus = info.row.original.status;
 
-          const shouldShowRunning =
-            (isThisRowRunning && !isThisRowStopping) || currentStatus == "5";
+          const shouldShowRunning = isThisRowRunning || currentStatus == "6";
 
           return (
             <div className="flex justify-between items-center gap-2 mx-2">
               {shouldShowRunning ? (
                 <>
+                  <Button disabled>
+                    {/* <Loader2 className="animate-spin" /> */}
+                    <MdElectricBolt />
+                    Blast
+                  </Button>
                   <Button
                     variant="destructive"
-                    onClick={() => handleStopBlast(rowAssetId)}
+                    onClick={() => handleStopBlast(username)}
                     disabled={isThisRowStopping}
+                    className="h-9 w-9 focus:none focus:ring-0"
                   >
-                    {isThisRowStopping ? "Stopping..." : "Stop"}
-                  </Button>
-                  <Button disabled>
-                    <Loader2 className="animate-spin" />
-                    Blasting
+                    <StopCircleIcon />
                   </Button>
                 </>
               ) : (
@@ -209,18 +239,25 @@ function Instagram() {
                       </Button>
                     </DialogTrigger>
                     <DialogContent
-                      className="sm:max-w-[525px] min-h-[400px]"
-                      onPointerDownOutside={(e) => e.preventDefault()}
+                      className="sm:max-w-[500px] min-h-[400px]"
+                      onPointerDownOutside={(e) => e.preventDefault()} // Prevents accidental closing
                     >
-                      <DialogHeader>
-                        <DialogTitle>Start to blast</DialogTitle>
-                        <DialogDescription>
-                          Provide the blast content to initiate the blasting
-                          process.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="flex flex-col gap-4 py-4">
-                        {/* Image Section */}
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault(); // Prevents form from submitting normally
+                          handleBlast(username); // Call the blast function
+                        }}
+                        className="flex flex-col gap-4 py-4"
+                      >
+                        <DialogHeader>
+                          <DialogTitle>Start to blast</DialogTitle>
+                          <DialogDescription>
+                            Provide the blast content to initiate the blasting
+                            process.
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        {/* Image Upload */}
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="image" className="text-left ml-1">
                             Image
@@ -233,6 +270,8 @@ function Instagram() {
                             className="w-full text-center placeholder:text-center text-gray-500 cursor-pointer"
                           />
                         </div>
+
+                        {/* Blast Content */}
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="content" className="text-left ml-1">
                             Content{" "}
@@ -244,20 +283,42 @@ function Instagram() {
                             ref={contentRef}
                             id="content"
                             placeholder="Enter your blast content"
-                            className="min-h-[200px]"
+                            className="min-h-[200px] max-h-[500px]"
+                            required
                           />
                         </div>
-                      </div>
-                      <DialogFooter>
-                        <Button
-                          type="button"
-                          onClick={() => handleBlast(username)}
-                        >
-                          Blast
-                        </Button>
-                      </DialogFooter>
+
+                        {/* Limit Input */}
+                        <div className="flex flex-col gap-2">
+                          <Label htmlFor="limit" className="text-left ml-1">
+                            Limit{" "}
+                            <span aria-hidden="true" className="text-red-500">
+                              *
+                            </span>
+                          </Label>
+                          <Input
+                            ref={limitRef} // Using ref instead of state
+                            id="limit"
+                            type="number"
+                            placeholder="Max: 50"
+                            className="w-full"
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              if (value < 1 || value > 50) {
+                                e.target.value = ""; // Reset input if out of range
+                              }
+                            }}
+                            required
+                          />
+                        </div>
+
+                        <DialogFooter>
+                          <Button type="submit">Blast</Button>
+                        </DialogFooter>
+                      </form>
                     </DialogContent>
                   </Dialog>
+
                   <Button
                     variant="destructive"
                     onClick={() => handleDelete(username)}
@@ -285,11 +346,11 @@ function Instagram() {
       // Keep running states for items that are still processing
       const newState = Object.fromEntries(
         Object.entries(prev).filter((entry) => {
-          const [assetId, processId] = entry;
+          const [username, processId] = entry;
           const correspondingItem = data.find(
             (item) =>
-              item.asset_id === assetId &&
-              (item.status === "5" || item.status === null) // Add logic to keep running states
+              item.username === username &&
+              (item.status === "6" || item.status === null) // Add logic to keep running states
           );
           return correspondingItem !== undefined;
         })
@@ -312,31 +373,36 @@ function Instagram() {
       if (response.ok) {
         const data = await response.json();
 
-        // Debugging logs
+        // Add null check for userId
+        if (!userId) {
+          console.error("userId is undefined");
+          return;
+        }
+
         console.log("UserId from localStorage:", userId);
         console.log("Data from API:", data.result);
 
-        // Filter the data based on userId
-        const filteredData = data.result.filter(
-          (item) => item.userid.toString() === userId.toString()
-        );
+        // Add safety checks in the filter
+        const filteredData = data.result.filter((item) => {
+          if (!item || !item.userid) {
+            console.log("Found item with missing userid:", item);
+            return false;
+          }
+          return item.userid.toString() === userId.toString();
+        });
 
-        // Debugging log for filtered data
         console.log("Filtered Data:", filteredData);
-
-        // Set the filtered data
         setData(filteredData);
 
-        // Update running states based on status
+        // Rest of your code...
         setRunningAssetIds((prev) => {
           const newRunningIds = { ...prev };
           filteredData.forEach((item) => {
-            // Only remove from running if truly completed or stopped
-            if (["1", "2"].includes(item.status)) {
-              delete newRunningIds[item.asset_id];
+            if (["1", "4"].includes(item.status)) {
+              delete newRunningIds[item.username];
               setStoppingAssetIds((prev) => {
                 const newSet = new Set(prev);
-                newSet.delete(item.asset_id);
+                newSet.delete(item.username);
                 return newSet;
               });
             }
@@ -345,14 +411,15 @@ function Instagram() {
         });
       } else {
         const errorData = await response.json();
-        console.log("Error from API:", errorData.error);
+        console.error("Error from API:", errorData.error);
       }
     } catch (error) {
-      console.log("Error fetching data:", error.message);
+      console.error("Error fetching data:", error.message);
     }
   };
 
   const resetStatus = async () => {
+    setIsBlastDialogOpen(false);
     try {
       const response = await fetch(`${backendUrl}/resetStatus`, {
         method: "GET",
@@ -377,15 +444,22 @@ function Instagram() {
   const handleBlast = async (username) => {
     const file = fileInputRef.current.files[0];
     const content = contentRef.current.value;
+    const limit = limitRef.current.value;
 
-    if (!content || content.trim() === "") {
+    if (!content || content.trim() === "" || !limit) {
       return;
     }
+
+    setRunningAssetIds((prev) => ({
+      ...prev,
+      [username]: username,
+    }));
 
     // Create FormData to send file
     const formData = new FormData();
     formData.append("file", file);
     formData.append("content", content);
+    formData.append("limit", limit);
     formData.append("username", username);
     formData.append("userid", userid);
     formData.append("process_id", crypto.randomUUID());
@@ -404,12 +478,97 @@ function Instagram() {
       // Handle the response
       if (response.ok) {
         const result = await response.json();
-        console.log("Success:", result);
+        if (result.result.status) {
+          console.log("Success:", result);
+        } else {
+          console.log("Error: ", result);
+          setRunningAssetIds((prev) => {
+            const newState = { ...prev };
+            delete newState[username];
+            return newState;
+          });
+        }
+        getAllPage(userid);
       } else {
         console.error("Failed to blast:", response.statusText);
+        getAllPage(userid);
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleStopBlast = async (username) => {
+    // Immediately mark as stopping
+    setStoppingAssetIds((prev) => new Set([...prev, username]));
+    console.log(stoppingAssetIds);
+    // setStopping(true);
+
+    try {
+      const response = await fetch(`${backendUrl}/cancelIG`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          userid: userid,
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          description: (
+            <div className="flex items-center">
+              <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+              Blasting successfully stopped!
+            </div>
+          ),
+        });
+
+        // Remove from running processes immediately
+        setRunningAssetIds((prev) => {
+          const newState = { ...prev };
+          delete newState[username];
+          return newState;
+        });
+
+        // setStopping(false);
+
+        // Wait for backend to update and refresh
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await getAllPage(userid);
+      } else {
+        const errorData = await response.json();
+        console.log("here", errorData.error);
+        toast({
+          description: (
+            <div className="flex items-center">
+              <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+              {errorData.error}
+            </div>
+          ),
+        });
+        await getAllPage(userid);
+      }
+    } catch (error) {
+      console.log("Stop blast: ", error.message);
+      toast({
+        description: (
+          <div className="flex items-center">
+            <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+            {error.message}
+          </div>
+        ),
+      });
+    } finally {
+      // Remove from stopping state
+      setStoppingAssetIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(username);
+        return newSet;
+      });
+      // setStopping(false);
     }
   };
 
