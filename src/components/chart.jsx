@@ -48,11 +48,16 @@ export function Chart() {
         const fetchedData = data.result;
 
         // Transform data to match chart expectations
-        const transformedData = fetchedData.map((item) => ({
-          date: item.date,
-          bs: item.bs || 0, // Replace `bs` with `bs`
-          ig: item.ig || 0, // Replace `ig` with `ig`
-        }));
+        const transformedData = fetchedData
+          .map((item) => ({
+            date: item.date,
+            bs: item.bs ?? 0, // Ensure `bs` is 0 if null/undefined
+            ig: item.ig ?? 0, // Ensure `ig` is 0 if null/undefined
+          }))
+          .filter(
+            (item) => (item.bs && item.bs !== 0) || (item.ig && item.ig !== 0)
+          ); // Remove zero/null values
+
         setChartData(transformedData);
         setLoading(false);
       } catch (error) {
@@ -63,6 +68,18 @@ export function Chart() {
 
     fetchChartData();
   }, []);
+
+  const filteredChartData = React.useMemo(() => {
+    return chartData.filter((item) => {
+      if (activeChart === "bs") {
+        return item.bs > 0; // Show only if `bs` is greater than 0
+      }
+      if (activeChart === "ig") {
+        return item.ig > 0; // Show only if `ig` is greater than 0
+      }
+      return true;
+    });
+  }, [chartData, activeChart]);
 
   const total = React.useMemo(
     () => ({
@@ -116,7 +133,7 @@ export function Chart() {
         >
           <BarChart
             accessibilityLayer
-            data={chartData}
+            data={filteredChartData}
             margin={{
               left: 12,
               right: 12,

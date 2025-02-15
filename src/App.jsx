@@ -6,7 +6,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { AppSidebar } from "@/components/app-sidebar";
 import Home from "./pages/home";
@@ -16,9 +16,8 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import AddAccount from "./pages/add-account";
 import "./App.css";
-
+import ProfilePage from "./pages/profile";
 function App() {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check authentication status on initial load
@@ -54,15 +53,8 @@ function App() {
                   "--sidebar-width-mobile": "20rem",
                 }}
               >
-                {isSidebarOpen && (
-                  <AppSidebar setIsAuthenticated={setIsAuthenticated} />
-                )}
+                <AppSidebar setIsAuthenticated={setIsAuthenticated} />
                 <div className="relative w-full">
-                  <SidebarTrigger
-                    className="absolute top-0 left-0 mt-2 ml-2 w-10 h-10"
-                    style={{ zIndex: 3 }}
-                    onClick={() => setSidebarOpen(!isSidebarOpen)}
-                  />
                   <div className="">
                     <Routes>
                       <Route path="/home" element={<Home />} />
@@ -72,6 +64,7 @@ function App() {
                       />
                       <Route path="/instagram" element={<Instagram />} />
                       <Route path="/add-account" element={<AddAccount />} />
+                      <Route path="/profile" element={<ProfilePage />} />
                     </Routes>
                   </div>
                 </div>

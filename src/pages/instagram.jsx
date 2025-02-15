@@ -10,6 +10,7 @@ import {
   InfoIcon,
 } from "lucide-react";
 import { MdElectricBolt } from "react-icons/md";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { IoMdAdd } from "react-icons/io";
 import { GrPowerReset } from "react-icons/gr";
 import { format } from "date-fns";
@@ -208,14 +209,18 @@ function Instagram() {
           const isThisRowRunning = runningAssetIds[username];
           const isThisRowStopping = stoppingAssetIds.has(username);
           const currentStatus = info.row.original.status;
-
           const shouldShowRunning = isThisRowRunning || currentStatus == "6";
+          if (username === "edward.ang1211") {
+            console.log("current status: ", currentStatus);
+            console.log(username, "running: ", isThisRowRunning);
+            console.log("should running: ", shouldShowRunning);
+          }
 
           return (
             <div className="flex justify-between items-center gap-2 mx-2">
               {shouldShowRunning ? (
                 <>
-                  <Button disabled>
+                  <Button disabled className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
                     {/* <Loader2 className="animate-spin" /> */}
                     <MdElectricBolt />
                     Blast
@@ -233,7 +238,7 @@ function Instagram() {
                 <>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button className="h-9 focus:none focus:ring-0">
+                      <Button className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
                         <MdElectricBolt />
                         Blast
                       </Button>
@@ -252,8 +257,7 @@ function Instagram() {
                         <DialogHeader>
                           <DialogTitle>Start to blast</DialogTitle>
                           <DialogDescription>
-                            Provide the blast content to initiate the blasting
-                            process.
+                            <strong>@{username}</strong>
                           </DialogDescription>
                         </DialogHeader>
 
@@ -313,16 +317,16 @@ function Instagram() {
                         </div>
 
                         <DialogFooter>
-                          <Button type="submit">Blast</Button>
+                          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Blast</Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
                   </Dialog>
 
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     onClick={() => handleDelete(username)}
-                    className="h-9 w-9 focus:none focus:ring-0"
+                    className="h-9 w-9 focus:none focus:ring-0 hover:bg-red-500 hover:text-white"
                   >
                     <TrashIcon />
                   </Button>
@@ -346,7 +350,7 @@ function Instagram() {
       // Keep running states for items that are still processing
       const newState = Object.fromEntries(
         Object.entries(prev).filter((entry) => {
-          const [username, processId] = entry;
+          const [username] = entry;
           const correspondingItem = data.find(
             (item) =>
               item.username === username &&
@@ -363,12 +367,15 @@ function Instagram() {
   // Update getAllPage to also handle running states
   const getAllPage = async (userId) => {
     try {
-      const response = await fetch(`${backendUrl}/getAllPage?platform=ig`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${backendUrl}/getAllPage?platform=ig&userid=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -380,24 +387,14 @@ function Instagram() {
         }
 
         console.log("UserId from localStorage:", userId);
-        console.log("Data from API:", data.result);
 
-        // Add safety checks in the filter
-        const filteredData = data.result.filter((item) => {
-          if (!item || !item.userid) {
-            console.log("Found item with missing userid:", item);
-            return false;
-          }
-          return item.userid.toString() === userId.toString();
-        });
+        const fetchedData = data.result;
+        console.log("Data from API:", fetchedData);
+        setData(fetchedData);
 
-        console.log("Filtered Data:", filteredData);
-        setData(filteredData);
-
-        // Rest of your code...
         setRunningAssetIds((prev) => {
           const newRunningIds = { ...prev };
-          filteredData.forEach((item) => {
+          fetchedData.forEach((item) => {
             if (["1", "4"].includes(item.status)) {
               delete newRunningIds[item.username];
               setStoppingAssetIds((prev) => {
@@ -430,7 +427,7 @@ function Instagram() {
 
       if (response.ok) {
         const data = await response.json(); // Parse the JSON response
-        getAllPage();
+        await getAllPage(userid);
         console.log(`Successfully reset ${data.updatedRows} statuses.`);
       } else {
         const errorData = await response.json();
@@ -455,7 +452,6 @@ function Instagram() {
       [username]: username,
     }));
 
-    // Create FormData to send file
     const formData = new FormData();
     formData.append("file", file);
     formData.append("content", content);
@@ -464,45 +460,73 @@ function Instagram() {
     formData.append("userid", userid);
     formData.append("process_id", crypto.randomUUID());
 
-    // Log FormData entries
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
     try {
       const response = await fetch(`${backendUrl}/blastIG`, {
         method: "POST",
-        body: formData, // Use formData instead of JSON
+        body: formData,
       });
 
-      // Handle the response
       if (response.ok) {
         const result = await response.json();
-        if (result.result.status) {
+        if (result.result.success) {
           console.log("Success:", result);
+          toast({
+            description: (
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <strong>{username}</strong> blast successfully!
+              </div>
+            ),
+          });
         } else {
           console.log("Error: ", result);
-          setRunningAssetIds((prev) => {
-            const newState = { ...prev };
-            delete newState[username];
-            return newState;
+          toast({
+            description: (
+              <div className="flex items-center">
+                <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+                Blasting failed unexpectedly! Please try again.
+              </div>
+            ),
           });
         }
-        getAllPage(userid);
+        await getAllPage(userid);
       } else {
         console.error("Failed to blast:", response.statusText);
-        getAllPage(userid);
+        toast({
+          description: (
+            <div className="flex items-center">
+              <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+              Blasting failed unexpectedly! Please try again.
+            </div>
+          ),
+        });
+        await getAllPage(userid);
       }
     } catch (error) {
       console.error(error);
+      toast({
+        description: (
+          <div className="flex items-center">
+            <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+            Blasting failed unexpectedly! Please try again.
+          </div>
+        ),
+      });
+      await getAllPage(userid);
+    } finally {
+      console.log(runningAssetIds);
+      console.log(username);
+      setRunningAssetIds((prev) => {
+        const newState = { ...prev };
+        delete newState[username];
+        return newState;
+      });
     }
   };
 
   const handleStopBlast = async (username) => {
     // Immediately mark as stopping
     setStoppingAssetIds((prev) => new Set([...prev, username]));
-    console.log(stoppingAssetIds);
-    // setStopping(true);
 
     try {
       const response = await fetch(`${backendUrl}/cancelIG`, {
@@ -526,17 +550,6 @@ function Instagram() {
           ),
         });
 
-        // Remove from running processes immediately
-        setRunningAssetIds((prev) => {
-          const newState = { ...prev };
-          delete newState[username];
-          return newState;
-        });
-
-        // setStopping(false);
-
-        // Wait for backend to update and refresh
-        await new Promise((resolve) => setTimeout(resolve, 500));
         await getAllPage(userid);
       } else {
         const errorData = await response.json();
@@ -562,13 +575,17 @@ function Instagram() {
         ),
       });
     } finally {
+      setRunningAssetIds((prev) => {
+        const newState = { ...prev };
+        delete newState[username];
+        return newState;
+      });
       // Remove from stopping state
       setStoppingAssetIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(username);
         return newSet;
       });
-      // setStopping(false);
     }
   };
 
@@ -703,6 +720,9 @@ function Instagram() {
                       if (!isOpen) resetFields(); // Clear inputs when dialog closes
                     }}
                   >
+                    <DialogTitle>
+                      <VisuallyHidden>Your Hidden Title Here</VisuallyHidden>
+                    </DialogTitle>
                     <TooltipTrigger asChild>
                       <DialogTrigger asChild>
                         <Button
@@ -716,7 +736,6 @@ function Instagram() {
                         </Button>
                       </DialogTrigger>
                     </TooltipTrigger>
-
                     <DialogContent
                       onPointerDownOutside={(e) => e.preventDefault()}
                       className="sm:max-w-[425px]"
@@ -761,7 +780,7 @@ function Instagram() {
                               />
                             </div>
                             <div className="flex">
-                              <Button type="submit" className="w-full">
+                              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                                 Add
                               </Button>
                             </div>
