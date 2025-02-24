@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,8 +45,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogOverlay,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -70,8 +79,8 @@ function Instagram() {
   const [filterValue, setFilterValue] = useState("");
   const [runningAssetIds, setRunningAssetIds] = useState({});
   const [stoppingAssetIds, setStoppingAssetIds] = useState(new Set());
-  const [isBlastDialogOpen, setIsBlastDialogOpen] = useState(false);
   const [open, setOpen] = useState(false);
+  const [openBlast, setOpenBlast] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
@@ -210,17 +219,20 @@ function Instagram() {
           const isThisRowStopping = stoppingAssetIds.has(username);
           const currentStatus = info.row.original.status;
           const shouldShowRunning = isThisRowRunning || currentStatus == "6";
-          if (username === "edward.ang1211") {
-            console.log("current status: ", currentStatus);
-            console.log(username, "running: ", isThisRowRunning);
-            console.log("should running: ", shouldShowRunning);
-          }
+          // if (username === "edward.ang1211") {
+          //   console.log("current status: ", currentStatus);
+          //   console.log(username, "running: ", isThisRowRunning);
+          //   console.log("should running: ", shouldShowRunning);
+          // }
 
           return (
             <div className="flex justify-between items-center gap-2 mx-2">
               {shouldShowRunning ? (
                 <>
-                  <Button disabled className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
+                  <Button
+                    disabled
+                    className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700"
+                  >
                     {/* <Loader2 className="animate-spin" /> */}
                     <MdElectricBolt />
                     Blast
@@ -236,7 +248,127 @@ function Instagram() {
                 </>
               ) : (
                 <>
-                  <Dialog>
+                  <Dialog
+                    open={openBlast}
+                    onOpenChange={(isOpen) => setOpenBlast(isOpen)}
+                  >
+                    <DialogTitle>
+                      <VisuallyHidden>Start Blast Dialog</VisuallyHidden>
+                    </DialogTitle>
+                    <DialogTrigger asChild>
+                      <Button className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
+                        <MdElectricBolt />
+                        Blast
+                      </Button>
+                    </DialogTrigger>
+                    <DialogOverlay className="bg-black/20" />
+                    <DialogContent
+                      className="sm:max-w-[500px]"
+                      onPointerDownOutside={(e) => e.preventDefault()}
+                    >
+                      <Card className="border-none shadow-none">
+                        <CardHeader>
+                          <CardTitle className="text-2xl font-bold">
+                            Start to Blast
+                          </CardTitle>
+                          <DialogDescription>
+                            <strong>@{username}</strong>
+                          </DialogDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleBlast(username);
+                            }}
+                            className="flex flex-col gap-4"
+                          >
+                            <div className="flex flex-col gap-2">
+                              <Label
+                                htmlFor="pageType"
+                                className="text-left ml-1"
+                              >
+                                Page Type
+                              </Label>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              <Label htmlFor="image" className="text-left ml-1">
+                                Image
+                              </Label>
+                              <Input
+                                ref={fileInputRef}
+                                id="image"
+                                type="file"
+                                accept="image/*"
+                                className="w-full text-gray-500 cursor-pointer"
+                              />
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              <Label
+                                htmlFor="content"
+                                className="text-left ml-1"
+                              >
+                                Content
+                                <span
+                                  aria-hidden="true"
+                                  className="text-red-500"
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </Label>
+                              <Textarea
+                                ref={contentRef}
+                                id="content"
+                                placeholder="Enter your blast content"
+                                className="min-h-[200px] max-h-[500px]"
+                                required
+                              />
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              <Label htmlFor="limit" className="text-left ml-1">
+                                Limit
+                                <span
+                                  aria-hidden="true"
+                                  className="text-red-500"
+                                >
+                                  {" "}
+                                  *
+                                </span>
+                              </Label>
+                              <Input
+                                ref={limitRef}
+                                id="limit"
+                                type="number"
+                                placeholder="Max: 50"
+                                className="w-full"
+                                onChange={(e) => {
+                                  let value = e.target.value;
+                                  if (value < 1 || value > 50)
+                                    e.target.value = "";
+                                }}
+                                required
+                              />
+                            </div>
+
+                            <div className="flex">
+                              <Button
+                                type="submit"
+                                className="w-full bg-blue-600 hover:bg-blue-700"
+                              >
+                                Blast
+                              </Button>
+                            </div>
+                          </form>
+                        </CardContent>
+                      </Card>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* <Dialog>
                     <DialogTrigger asChild>
                       <Button className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
                         <MdElectricBolt />
@@ -261,7 +393,40 @@ function Instagram() {
                           </DialogDescription>
                         </DialogHeader>
 
-                        {/* Image Upload */}
+                        <div className="flex flex-col gap-2">
+                          <Label htmlFor="image" className="text-left ml-1">
+                            Page Type
+                          </Label>
+                          <div className="grid grid-cols-2 gap-2 p-1 rounded-lg border bg-muted">
+                            <button
+                              type=""
+                              onClick={(e) => {
+                                handleSelect(e, "general");
+                              }}
+                              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                selected === "general"
+                                  ? "bg-background text-foreground shadow-sm"
+                                  : "text-muted-foreground hover:bg-background/50"
+                              }`}
+                            >
+                              General
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                handleSelect(e, "primary");
+                              }}
+                              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                selected === "primary"
+                                  ? "bg-background text-foreground shadow-sm"
+                                  : "text-muted-foreground hover:bg-background/50"
+                              }`}
+                            >
+                              Primary
+                            </button>
+                          </div>
+                        </div>
+
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="image" className="text-left ml-1">
                             Image
@@ -275,7 +440,6 @@ function Instagram() {
                           />
                         </div>
 
-                        {/* Blast Content */}
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="content" className="text-left ml-1">
                             Content{" "}
@@ -292,7 +456,6 @@ function Instagram() {
                           />
                         </div>
 
-                        {/* Limit Input */}
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="limit" className="text-left ml-1">
                             Limit{" "}
@@ -317,11 +480,16 @@ function Instagram() {
                         </div>
 
                         <DialogFooter>
-                          <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Blast</Button>
+                          <Button
+                            type="submit"
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Blast
+                          </Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
-                  </Dialog>
+                  </Dialog> */}
 
                   <Button
                     variant="outline"
@@ -416,9 +584,8 @@ function Instagram() {
   };
 
   const resetStatus = async () => {
-    setIsBlastDialogOpen(false);
     try {
-      const response = await fetch(`${backendUrl}/resetStatus`, {
+      const response = await fetch(`${backendUrl}/resetIgStatus`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -426,9 +593,16 @@ function Instagram() {
       });
 
       if (response.ok) {
-        const data = await response.json(); // Parse the JSON response
         await getAllPage(userid);
-        console.log(`Successfully reset ${data.updatedRows} statuses.`);
+        toast({
+          variant: "success",
+          description: (
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              Status reset successfully!
+            </div>
+          ),
+        });
       } else {
         const errorData = await response.json();
         console.error("Error:", errorData);
@@ -471,6 +645,7 @@ function Instagram() {
         if (result.result.success) {
           console.log("Success:", result);
           toast({
+            variant: "success",
             description: (
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -480,19 +655,34 @@ function Instagram() {
           });
         } else {
           console.log("Error: ", result);
-          toast({
-            description: (
-              <div className="flex items-center">
-                <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
-                Blasting failed unexpectedly! Please try again.
-              </div>
-            ),
-          });
+          console.log("result.stop: ", result.result.stop);
+          if (result.result.stop) {
+            toast({
+              variant: "warning",
+              description: (
+                <div className="flex items-center">
+                  <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+                  Blasting stopped unexpectedly! Please try again.
+                </div>
+              ),
+            });
+          } else {
+            toast({
+              variant: "warning",
+              description: (
+                <div className="flex items-center">
+                  <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+                  Blasting failed unexpectedly! Please try again.
+                </div>
+              ),
+            });
+          }
         }
         await getAllPage(userid);
       } else {
         console.error("Failed to blast:", response.statusText);
         toast({
+          variant: "error",
           description: (
             <div className="flex items-center">
               <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
@@ -505,6 +695,7 @@ function Instagram() {
     } catch (error) {
       console.error(error);
       toast({
+        variant: "error",
         description: (
           <div className="flex items-center">
             <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
@@ -542,6 +733,7 @@ function Instagram() {
 
       if (response.ok) {
         toast({
+          variant: "success",
           description: (
             <div className="flex items-center">
               <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
@@ -555,6 +747,7 @@ function Instagram() {
         const errorData = await response.json();
         console.log("here", errorData.error);
         toast({
+          variant: "error",
           description: (
             <div className="flex items-center">
               <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
@@ -567,6 +760,7 @@ function Instagram() {
     } catch (error) {
       console.log("Stop blast: ", error.message);
       toast({
+        variant: "error",
         description: (
           <div className="flex items-center">
             <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
@@ -621,6 +815,7 @@ function Instagram() {
         setOpen(!open);
         resetFields();
         toast({
+          variant: "success",
           description: (
             <div className="flex items-center gap-2">
               <CheckCircle2 className="text-green-500 h-5 w-5" />
@@ -631,13 +826,13 @@ function Instagram() {
       } else {
         toast({
           description: "Invalid username or password!",
-          variant: "destructive",
+          variant: "error",
         });
       }
     } catch (err) {
       toast({
         description: "An error occurred please try again!",
-        variant: "destructive",
+        variant: "error",
       });
     }
   };
@@ -661,6 +856,7 @@ function Instagram() {
 
       if (response.ok) {
         toast({
+          variant: "success",
           description: (
             <div className="flex items-center gap-2">
               <CheckCircle2 className="text-green-500 h-5 w-5" />
@@ -675,14 +871,14 @@ function Instagram() {
       } else {
         toast({
           description: "Failed to delete account!",
-          variant: "destructive",
+          variant: "error",
         });
       }
     } catch (error) {
       console.error("Error deleting account:", error);
       toast({
         description: "An error occurred while deleting.",
-        variant: "destructive",
+        variant: "error",
       });
     } finally {
       setDeleteDialogOpen(false);
@@ -736,6 +932,7 @@ function Instagram() {
                         </Button>
                       </DialogTrigger>
                     </TooltipTrigger>
+                    <DialogOverlay className="bg-black/60" />
                     <DialogContent
                       onPointerDownOutside={(e) => e.preventDefault()}
                       className="sm:max-w-[425px]"
@@ -780,7 +977,10 @@ function Instagram() {
                               />
                             </div>
                             <div className="flex">
-                              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                              <Button
+                                type="submit"
+                                className="w-full bg-blue-600 hover:bg-blue-700"
+                              >
                                 Add
                               </Button>
                             </div>
@@ -796,7 +996,11 @@ function Instagram() {
               </TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" className="h-9 w-9">
+                  <Button
+                    variant="outline"
+                    className="h-9 w-9"
+                    onClick={resetStatus}
+                  >
                     <GrPowerReset />
                   </Button>
                 </TooltipTrigger>
@@ -804,7 +1008,7 @@ function Instagram() {
                   <p>Reset status</p>
                 </TooltipContent>
               </Tooltip>
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
@@ -821,7 +1025,7 @@ function Instagram() {
                     Fetch new page
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
             </div>
           </div>
           <DataTable columns={column} data={filteredData} />
@@ -830,6 +1034,7 @@ function Instagram() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogOverlay className="bg-black/60" />
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Delete Account</DialogTitle>

@@ -25,103 +25,103 @@ import {
 } from "@/components/ui/select";
 
 const chartData = [
-  { date: "2024-04-01", desktop: 222, mobile: 150 },
-  { date: "2024-04-02", desktop: 97, mobile: 180 },
-  { date: "2024-04-03", desktop: 167, mobile: 120 },
-  { date: "2024-04-04", desktop: 242, mobile: 260 },
-  { date: "2024-04-05", desktop: 373, mobile: 290 },
-  { date: "2024-04-06", desktop: 301, mobile: 340 },
-  { date: "2024-04-07", desktop: 245, mobile: 180 },
-  { date: "2024-04-08", desktop: 409, mobile: 320 },
-  { date: "2024-04-09", desktop: 59, mobile: 110 },
-  { date: "2024-04-10", desktop: 261, mobile: 190 },
-  { date: "2024-04-11", desktop: 327, mobile: 350 },
-  { date: "2024-04-12", desktop: 292, mobile: 210 },
-  { date: "2024-04-13", desktop: 342, mobile: 380 },
-  { date: "2024-04-14", desktop: 137, mobile: 220 },
-  { date: "2024-04-15", desktop: 120, mobile: 170 },
-  { date: "2024-04-16", desktop: 138, mobile: 190 },
-  { date: "2024-04-17", desktop: 446, mobile: 360 },
-  { date: "2024-04-18", desktop: 364, mobile: 410 },
-  { date: "2024-04-19", desktop: 243, mobile: 180 },
-  { date: "2024-04-20", desktop: 89, mobile: 150 },
-  { date: "2024-04-21", desktop: 137, mobile: 200 },
-  { date: "2024-04-22", desktop: 224, mobile: 170 },
-  { date: "2024-04-23", desktop: 138, mobile: 230 },
-  { date: "2024-04-24", desktop: 387, mobile: 290 },
-  { date: "2024-04-25", desktop: 215, mobile: 250 },
-  { date: "2024-04-26", desktop: 75, mobile: 130 },
-  { date: "2024-04-27", desktop: 383, mobile: 420 },
-  { date: "2024-04-28", desktop: 122, mobile: 180 },
-  { date: "2024-04-29", desktop: 315, mobile: 240 },
-  { date: "2024-04-30", desktop: 454, mobile: 380 },
-  { date: "2024-05-01", desktop: 165, mobile: 220 },
-  { date: "2024-05-02", desktop: 293, mobile: 310 },
-  { date: "2024-05-03", desktop: 247, mobile: 190 },
-  { date: "2024-05-04", desktop: 385, mobile: 420 },
-  { date: "2024-05-05", desktop: 481, mobile: 390 },
-  { date: "2024-05-06", desktop: 498, mobile: 520 },
-  { date: "2024-05-07", desktop: 388, mobile: 300 },
-  { date: "2024-05-08", desktop: 149, mobile: 210 },
-  { date: "2024-05-09", desktop: 227, mobile: 180 },
-  { date: "2024-05-10", desktop: 293, mobile: 330 },
-  { date: "2024-05-11", desktop: 335, mobile: 270 },
-  { date: "2024-05-12", desktop: 197, mobile: 240 },
-  { date: "2024-05-13", desktop: 197, mobile: 160 },
-  { date: "2024-05-14", desktop: 448, mobile: 490 },
-  { date: "2024-05-15", desktop: 473, mobile: 380 },
-  { date: "2024-05-16", desktop: 338, mobile: 400 },
-  { date: "2024-05-17", desktop: 499, mobile: 420 },
-  { date: "2024-05-18", desktop: 315, mobile: 350 },
-  { date: "2024-05-19", desktop: 235, mobile: 180 },
-  { date: "2024-05-20", desktop: 177, mobile: 230 },
-  { date: "2024-05-21", desktop: 82, mobile: 140 },
-  { date: "2024-05-22", desktop: 81, mobile: 120 },
-  { date: "2024-05-23", desktop: 252, mobile: 290 },
-  { date: "2024-05-24", desktop: 294, mobile: 220 },
-  { date: "2024-05-25", desktop: 201, mobile: 250 },
-  { date: "2024-05-26", desktop: 213, mobile: 170 },
-  { date: "2024-05-27", desktop: 420, mobile: 460 },
-  { date: "2024-05-28", desktop: 233, mobile: 190 },
-  { date: "2024-05-29", desktop: 78, mobile: 130 },
-  { date: "2024-05-30", desktop: 340, mobile: 280 },
-  { date: "2024-05-31", desktop: 178, mobile: 230 },
-  { date: "2024-06-01", desktop: 178, mobile: 200 },
-  { date: "2024-06-02", desktop: 470, mobile: 410 },
-  { date: "2024-06-03", desktop: 103, mobile: 160 },
-  { date: "2024-06-04", desktop: 439, mobile: 380 },
-  { date: "2024-06-05", desktop: 88, mobile: 140 },
-  { date: "2024-06-06", desktop: 294, mobile: 250 },
-  { date: "2024-06-07", desktop: 323, mobile: 370 },
-  { date: "2024-06-08", desktop: 385, mobile: 320 },
-  { date: "2024-06-09", desktop: 438, mobile: 480 },
-  { date: "2024-06-10", desktop: 155, mobile: 200 },
-  { date: "2024-06-11", desktop: 92, mobile: 150 },
-  { date: "2024-06-12", desktop: 492, mobile: 420 },
-  { date: "2024-06-13", desktop: 81, mobile: 130 },
-  { date: "2024-06-14", desktop: 426, mobile: 380 },
-  { date: "2024-06-15", desktop: 307, mobile: 350 },
-  { date: "2024-06-16", desktop: 371, mobile: 310 },
-  { date: "2024-06-17", desktop: 475, mobile: 520 },
-  { date: "2024-06-18", desktop: 107, mobile: 170 },
-  { date: "2024-06-19", desktop: 341, mobile: 290 },
-  { date: "2024-06-20", desktop: 408, mobile: 450 },
-  { date: "2024-06-21", desktop: 169, mobile: 210 },
-  { date: "2024-06-22", desktop: 317, mobile: 270 },
-  { date: "2024-06-23", desktop: 480, mobile: 530 },
-  { date: "2024-06-24", desktop: 132, mobile: 180 },
-  { date: "2024-06-25", desktop: 141, mobile: 190 },
-  { date: "2024-06-26", desktop: 434, mobile: 380 },
-  { date: "2024-06-27", desktop: 448, mobile: 490 },
-  { date: "2024-06-28", desktop: 149, mobile: 200 },
-  { date: "2024-06-29", desktop: 103, mobile: 160 },
-  { date: "2024-06-30", desktop: 446, mobile: 400 },
+  { date: "2024-04-01", bs: 222, ig: 150 },
+  { date: "2024-04-02", bs: 97, ig: 180 },
+  { date: "2024-04-03", bs: 167, ig: 120 },
+  { date: "2024-04-04", bs: 242, ig: 260 },
+  { date: "2024-04-05", bs: 373, ig: 290 },
+  { date: "2024-04-06", bs: 301, ig: 340 },
+  { date: "2024-04-07", bs: 245, ig: 180 },
+  { date: "2024-04-08", bs: 409, ig: 320 },
+  { date: "2024-04-09", bs: 59, ig: 110 },
+  { date: "2024-04-10", bs: 261, ig: 190 },
+  { date: "2024-04-11", bs: 327, ig: 350 },
+  { date: "2024-04-12", bs: 292, ig: 210 },
+  { date: "2024-04-13", bs: 342, ig: 380 },
+  { date: "2024-04-14", bs: 137, ig: 220 },
+  { date: "2024-04-15", bs: 120, ig: 170 },
+  { date: "2024-04-16", bs: 138, ig: 190 },
+  { date: "2024-04-17", bs: 446, ig: 360 },
+  { date: "2024-04-18", bs: 364, ig: 410 },
+  { date: "2024-04-19", bs: 243, ig: 180 },
+  { date: "2024-04-20", bs: 89, ig: 150 },
+  { date: "2024-04-21", bs: 137, ig: 200 },
+  { date: "2024-04-22", bs: 224, ig: 170 },
+  { date: "2024-04-23", bs: 138, ig: 230 },
+  { date: "2024-04-24", bs: 387, ig: 290 },
+  { date: "2024-04-25", bs: 215, ig: 250 },
+  { date: "2024-04-26", bs: 75, ig: 130 },
+  { date: "2024-04-27", bs: 383, ig: 420 },
+  { date: "2024-04-28", bs: 122, ig: 180 },
+  { date: "2024-04-29", bs: 315, ig: 240 },
+  { date: "2024-04-30", bs: 454, ig: 380 },
+  { date: "2024-05-01", bs: 165, ig: 220 },
+  { date: "2024-05-02", bs: 293, ig: 310 },
+  { date: "2024-05-03", bs: 247, ig: 190 },
+  { date: "2024-05-04", bs: 385, ig: 420 },
+  { date: "2024-05-05", bs: 481, ig: 390 },
+  { date: "2024-05-06", bs: 498, ig: 520 },
+  { date: "2024-05-07", bs: 388, ig: 300 },
+  { date: "2024-05-08", bs: 149, ig: 210 },
+  { date: "2024-05-09", bs: 227, ig: 180 },
+  { date: "2024-05-10", bs: 293, ig: 330 },
+  { date: "2024-05-11", bs: 335, ig: 270 },
+  { date: "2024-05-12", bs: 197, ig: 240 },
+  { date: "2024-05-13", bs: 197, ig: 160 },
+  { date: "2024-05-14", bs: 448, ig: 490 },
+  { date: "2024-05-15", bs: 473, ig: 380 },
+  { date: "2024-05-16", bs: 338, ig: 400 },
+  { date: "2024-05-17", bs: 499, ig: 420 },
+  { date: "2024-05-18", bs: 315, ig: 350 },
+  { date: "2024-05-19", bs: 235, ig: 180 },
+  { date: "2024-05-20", bs: 177, ig: 230 },
+  { date: "2024-05-21", bs: 82, ig: 140 },
+  { date: "2024-05-22", bs: 81, ig: 120 },
+  { date: "2024-05-23", bs: 252, ig: 290 },
+  { date: "2024-05-24", bs: 294, ig: 220 },
+  { date: "2024-05-25", bs: 201, ig: 250 },
+  { date: "2024-05-26", bs: 213, ig: 170 },
+  { date: "2024-05-27", bs: 420, ig: 460 },
+  { date: "2024-05-28", bs: 233, ig: 190 },
+  { date: "2024-05-29", bs: 78, ig: 130 },
+  { date: "2024-05-30", bs: 340, ig: 280 },
+  { date: "2024-05-31", bs: 178, ig: 230 },
+  { date: "2024-06-01", bs: 178, ig: 200 },
+  { date: "2024-06-02", bs: 470, ig: 410 },
+  { date: "2024-06-03", bs: 103, ig: 160 },
+  { date: "2024-06-04", bs: 439, ig: 380 },
+  { date: "2024-06-05", bs: 88, ig: 140 },
+  { date: "2024-06-06", bs: 294, ig: 250 },
+  { date: "2024-06-07", bs: 323, ig: 370 },
+  { date: "2024-06-08", bs: 385, ig: 320 },
+  { date: "2024-06-09", bs: 438, ig: 480 },
+  { date: "2024-06-10", bs: 155, ig: 200 },
+  { date: "2024-06-11", bs: 92, ig: 150 },
+  { date: "2024-06-12", bs: 492, ig: 420 },
+  { date: "2024-06-13", bs: 81, ig: 130 },
+  { date: "2024-06-14", bs: 426, ig: 380 },
+  { date: "2024-06-15", bs: 307, ig: 350 },
+  { date: "2024-06-16", bs: 371, ig: 310 },
+  { date: "2024-06-17", bs: 475, ig: 520 },
+  { date: "2024-06-18", bs: 107, ig: 170 },
+  { date: "2024-06-19", bs: 341, ig: 290 },
+  { date: "2024-06-20", bs: 408, ig: 450 },
+  { date: "2024-06-21", bs: 169, ig: 210 },
+  { date: "2024-06-22", bs: 317, ig: 270 },
+  { date: "2024-06-23", bs: 480, ig: 530 },
+  { date: "2024-06-24", bs: 132, ig: 180 },
+  { date: "2024-06-25", bs: 141, ig: 190 },
+  { date: "2024-06-26", bs: 434, ig: 380 },
+  { date: "2024-06-27", bs: 448, ig: 490 },
+  { date: "2024-06-28", bs: 149, ig: 200 },
+  { date: "2024-06-29", bs: 103, ig: 160 },
+  { date: "2024-06-30", bs: 446, ig: 400 },
 ];
 
 const chartConfig = {
   visitors: { label: "Visitors" },
-  desktop: { label: "Desktop", color: "hsl(var(--chart-1))" },
-  mobile: { label: "Mobile", color: "hsl(var(--chart-2))" },
+  bs: { label: "Business Suite", color: "hsl(var(--chart-1))" },
+  ig: { label: "Instagram", color: "hsl(var(--chart-2))" },
 };
 
 export function AreaChartCompenent() {
@@ -172,27 +172,27 @@ export function AreaChartCompenent() {
         >
           <AreaChart data={filteredData}>
             <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillBs" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-desktop)"
+                  stopColor="var(--color-bs)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-desktop)"
+                  stopColor="var(--color-bs)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillIg" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-mobile)"
+                  stopColor="var(--color-ig)"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-mobile)"
+                  stopColor="var(--color-ig)"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -227,17 +227,17 @@ export function AreaChartCompenent() {
               }
             />
             <Area
-              dataKey="mobile"
+              dataKey="ig"
               type="natural"
-              fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
+              fill="url(#fillIg)"
+              stroke="var(--color-ig)"
               stackId="a"
             />
             <Area
-              dataKey="desktop"
+              dataKey="bs"
               type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
+              fill="url(#fillBs)"
+              stroke="var(--color-bs)"
               stackId="a"
             />
             <ChartLegend content={<ChartLegendContent />} />

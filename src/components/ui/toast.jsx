@@ -11,7 +11,7 @@ const ToastViewport = React.forwardRef(({ className, ...props }, ref) => (
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      "fixed top-2 right-2 z-[100] flex max-h-screen w-full max-w-[420px] flex-col-reverse p-4 sm:flex-col", // Modified positioning
+      "fixed bottom-2 right-2 z-[100] flex max-h-screen w-full max-w-[420px] flex-col-reverse p-4 sm:flex-col", // Modified positioning
       className
     )}
     {...props}
@@ -27,6 +27,10 @@ const toastVariants = cva(
         default: "border bg-background text-foreground",
         destructive:
           "destructive group border-destructive bg-destructive text-destructive-foreground",
+        success: "border-green-500 bg-green-50 text-green-700",
+        error: "border-red-500 bg-red-50 text-red-700",
+        warning: "border-yellow-500 bg-yellow-50 text-yellow-700",
+        info: "border-blue-500 bg-blue-50 text-blue-700",
       },
     },
     defaultVariants: {
@@ -35,15 +39,17 @@ const toastVariants = cva(
   }
 );
 
-const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
+const Toast = React.forwardRef(({ className, variant, duration = Infinity, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
       ref={ref}
+      duration={duration} // 👈 Infinite duration by default
       className={cn(toastVariants({ variant }), className)}
       {...props}
     />
   );
 });
+
 Toast.displayName = ToastPrimitives.Root.displayName;
 
 const ToastAction = React.forwardRef(({ className, ...props }, ref) => (

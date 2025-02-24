@@ -7,7 +7,6 @@ import {
   LogOut,
   ChevronDown,
   ChevronUp,
-  Menu,
 } from "lucide-react";
 import { FiSidebar } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -143,7 +142,8 @@ export function AppSidebar({ setIsAuthenticated }) {
               className={cn(
                 isCollapsed
                   ? "w-10 h-10 px-0 flex items-center justify-center"
-                  : "w-full justify-start"
+                  : "w-full justify-start",
+                location.pathname === "/home" && isCollapsed && "shadow-md"
               )}
               asChild
             >
@@ -172,7 +172,8 @@ export function AppSidebar({ setIsAuthenticated }) {
                       className={cn(
                         isCollapsed
                           ? "w-10 h-10 px-0 flex items-center justify-center"
-                          : "w-full justify-start"
+                          : "w-full justify-start",
+                        location.pathname === item.url && isCollapsed && "shadow-md"
                       )}
                       asChild
                     >
@@ -189,7 +190,8 @@ export function AppSidebar({ setIsAuthenticated }) {
                       className={cn(
                         isCollapsed
                           ? "w-10 h-10 px-0 flex items-center justify-center"
-                          : "w-full justify-start"
+                          : "w-full justify-start",
+                        location.pathname === item.url && isCollapsed && "shadow-md"
                       )}
                       onClick={() => toggleSubmenu(item.title)}
                     >
