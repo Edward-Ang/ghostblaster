@@ -1,6 +1,6 @@
 import { Chart } from "@/components/chart";
 import { PieChartComponent } from "@/components/PieChart";
-import { AreaChartCompenent } from "@/components/AreaChart";
+import { AreaChartComponent } from "@/components/AreaChart";
 
 function Home() {
   return (
@@ -19,7 +19,7 @@ function Home() {
           <PieChartComponent />
         </div>
         <div className="p-4">
-          <AreaChartCompenent />
+          <AreaChartComponent />
         </div>
       </div>
     </div>

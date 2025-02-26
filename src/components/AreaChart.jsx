@@ -1,7 +1,8 @@
-// components/Chart.jsx
 "use client";
+
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+
 import {
   Card,
   CardContent,
@@ -24,131 +25,103 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const chartData = [
-  { date: "2024-04-01", bs: 222, ig: 150 },
-  { date: "2024-04-02", bs: 97, ig: 180 },
-  { date: "2024-04-03", bs: 167, ig: 120 },
-  { date: "2024-04-04", bs: 242, ig: 260 },
-  { date: "2024-04-05", bs: 373, ig: 290 },
-  { date: "2024-04-06", bs: 301, ig: 340 },
-  { date: "2024-04-07", bs: 245, ig: 180 },
-  { date: "2024-04-08", bs: 409, ig: 320 },
-  { date: "2024-04-09", bs: 59, ig: 110 },
-  { date: "2024-04-10", bs: 261, ig: 190 },
-  { date: "2024-04-11", bs: 327, ig: 350 },
-  { date: "2024-04-12", bs: 292, ig: 210 },
-  { date: "2024-04-13", bs: 342, ig: 380 },
-  { date: "2024-04-14", bs: 137, ig: 220 },
-  { date: "2024-04-15", bs: 120, ig: 170 },
-  { date: "2024-04-16", bs: 138, ig: 190 },
-  { date: "2024-04-17", bs: 446, ig: 360 },
-  { date: "2024-04-18", bs: 364, ig: 410 },
-  { date: "2024-04-19", bs: 243, ig: 180 },
-  { date: "2024-04-20", bs: 89, ig: 150 },
-  { date: "2024-04-21", bs: 137, ig: 200 },
-  { date: "2024-04-22", bs: 224, ig: 170 },
-  { date: "2024-04-23", bs: 138, ig: 230 },
-  { date: "2024-04-24", bs: 387, ig: 290 },
-  { date: "2024-04-25", bs: 215, ig: 250 },
-  { date: "2024-04-26", bs: 75, ig: 130 },
-  { date: "2024-04-27", bs: 383, ig: 420 },
-  { date: "2024-04-28", bs: 122, ig: 180 },
-  { date: "2024-04-29", bs: 315, ig: 240 },
-  { date: "2024-04-30", bs: 454, ig: 380 },
-  { date: "2024-05-01", bs: 165, ig: 220 },
-  { date: "2024-05-02", bs: 293, ig: 310 },
-  { date: "2024-05-03", bs: 247, ig: 190 },
-  { date: "2024-05-04", bs: 385, ig: 420 },
-  { date: "2024-05-05", bs: 481, ig: 390 },
-  { date: "2024-05-06", bs: 498, ig: 520 },
-  { date: "2024-05-07", bs: 388, ig: 300 },
-  { date: "2024-05-08", bs: 149, ig: 210 },
-  { date: "2024-05-09", bs: 227, ig: 180 },
-  { date: "2024-05-10", bs: 293, ig: 330 },
-  { date: "2024-05-11", bs: 335, ig: 270 },
-  { date: "2024-05-12", bs: 197, ig: 240 },
-  { date: "2024-05-13", bs: 197, ig: 160 },
-  { date: "2024-05-14", bs: 448, ig: 490 },
-  { date: "2024-05-15", bs: 473, ig: 380 },
-  { date: "2024-05-16", bs: 338, ig: 400 },
-  { date: "2024-05-17", bs: 499, ig: 420 },
-  { date: "2024-05-18", bs: 315, ig: 350 },
-  { date: "2024-05-19", bs: 235, ig: 180 },
-  { date: "2024-05-20", bs: 177, ig: 230 },
-  { date: "2024-05-21", bs: 82, ig: 140 },
-  { date: "2024-05-22", bs: 81, ig: 120 },
-  { date: "2024-05-23", bs: 252, ig: 290 },
-  { date: "2024-05-24", bs: 294, ig: 220 },
-  { date: "2024-05-25", bs: 201, ig: 250 },
-  { date: "2024-05-26", bs: 213, ig: 170 },
-  { date: "2024-05-27", bs: 420, ig: 460 },
-  { date: "2024-05-28", bs: 233, ig: 190 },
-  { date: "2024-05-29", bs: 78, ig: 130 },
-  { date: "2024-05-30", bs: 340, ig: 280 },
-  { date: "2024-05-31", bs: 178, ig: 230 },
-  { date: "2024-06-01", bs: 178, ig: 200 },
-  { date: "2024-06-02", bs: 470, ig: 410 },
-  { date: "2024-06-03", bs: 103, ig: 160 },
-  { date: "2024-06-04", bs: 439, ig: 380 },
-  { date: "2024-06-05", bs: 88, ig: 140 },
-  { date: "2024-06-06", bs: 294, ig: 250 },
-  { date: "2024-06-07", bs: 323, ig: 370 },
-  { date: "2024-06-08", bs: 385, ig: 320 },
-  { date: "2024-06-09", bs: 438, ig: 480 },
-  { date: "2024-06-10", bs: 155, ig: 200 },
-  { date: "2024-06-11", bs: 92, ig: 150 },
-  { date: "2024-06-12", bs: 492, ig: 420 },
-  { date: "2024-06-13", bs: 81, ig: 130 },
-  { date: "2024-06-14", bs: 426, ig: 380 },
-  { date: "2024-06-15", bs: 307, ig: 350 },
-  { date: "2024-06-16", bs: 371, ig: 310 },
-  { date: "2024-06-17", bs: 475, ig: 520 },
-  { date: "2024-06-18", bs: 107, ig: 170 },
-  { date: "2024-06-19", bs: 341, ig: 290 },
-  { date: "2024-06-20", bs: 408, ig: 450 },
-  { date: "2024-06-21", bs: 169, ig: 210 },
-  { date: "2024-06-22", bs: 317, ig: 270 },
-  { date: "2024-06-23", bs: 480, ig: 530 },
-  { date: "2024-06-24", bs: 132, ig: 180 },
-  { date: "2024-06-25", bs: 141, ig: 190 },
-  { date: "2024-06-26", bs: 434, ig: 380 },
-  { date: "2024-06-27", bs: 448, ig: 490 },
-  { date: "2024-06-28", bs: 149, ig: 200 },
-  { date: "2024-06-29", bs: 103, ig: 160 },
-  { date: "2024-06-30", bs: 446, ig: 400 },
-];
-
 const chartConfig = {
   visitors: { label: "Visitors" },
   bs: { label: "Business Suite", color: "hsl(var(--chart-1))" },
   ig: { label: "Instagram", color: "hsl(var(--chart-2))" },
 };
 
-export function AreaChartCompenent() {
+export function AreaChartComponent() {
+  const [chartData, setChartData] = React.useState([]);
   const [timeRange, setTimeRange] = React.useState("90d");
+  const [loading, setLoading] = React.useState(true);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date);
-    const referenceDate = new Date("2024-06-30");
-    let daysToSubtract = timeRange === "30d" ? 30 : timeRange === "7d" ? 7 : 90;
-    const startDate = new Date(referenceDate);
-    startDate.setDate(startDate.getDate() - daysToSubtract);
-    return date >= startDate;
-  });
+  // Fetch data from your database
+  React.useEffect(() => {
+    async function fetchChartData() {
+      try {
+        const response = await fetch(`${backendUrl}/getReportData`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch chart data");
+        }
+        const data = await response.json();
+        const fetchedData = data.result;
+
+        // Transform data to match chart expectations
+        const transformedData = fetchedData
+          .map((item) => ({
+            date: item.date,
+            bs: item.bs ?? 0,
+            ig: item.ig ?? 0,
+          }))
+          .filter(
+            (item) => (item.bs && item.bs !== 0) || (item.ig && item.ig !== 0)
+          );
+
+        setChartData(transformedData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+        setLoading(false);
+      }
+    }
+
+    fetchChartData();
+  }, []);
+
+  const filteredData = React.useMemo(() => {
+    if (!chartData.length) return [];
+
+    return chartData.filter((item) => {
+      const date = new Date(item.date);
+      // Use the latest date in the dataset as reference
+      const dateArray = chartData.map((d) => new Date(d.date));
+      const referenceDate = new Date(Math.max.apply(null, dateArray));
+
+      let daysToSubtract =
+        timeRange === "30d" ? 30 : timeRange === "7d" ? 7 : 90;
+      const startDate = new Date(referenceDate);
+      startDate.setDate(startDate.getDate() - daysToSubtract);
+
+      return date >= startDate;
+    });
+  }, [chartData, timeRange]);
+
+  const total = React.useMemo(
+    () => ({
+      bs: Array.isArray(filteredData)
+        ? filteredData.reduce((acc, curr) => acc + (curr.bs || 0), 0)
+        : 0,
+      ig: Array.isArray(filteredData)
+        ? filteredData.reduce((acc, curr) => acc + (curr.ig || 0), 0)
+        : 0,
+    }),
+    [filteredData]
+  );
+
+  if (loading) {
+    return <div>Loading chart data...</div>;
+  }
 
   return (
     <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Area Chart - Interactive</CardTitle>
+          <CardTitle>Area Chart - Real Data</CardTitle>
           <CardDescription>
-            Showing total visitors for the last 3 months
+            Showing total blasts for{" "}
+            {timeRange === "90d"
+              ? "the last 3 months"
+              : timeRange === "30d"
+              ? "the last 30 days"
+              : "the last 7 days"}
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
             className="w-[160px] rounded-lg sm:ml-auto"
-            aria-label="Select a value"
+            aria-label="Select a time range"
           >
             <SelectValue placeholder="Last 3 months" />
           </SelectTrigger>
@@ -165,7 +138,22 @@ export function AreaChartCompenent() {
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-2 pt-4 sm:px-2 sm:pt-2">
+        <div className="mb-2 grid grid-cols-2 gap-2 rounded-2xl bg-muted p-2 shadow-sm">
+          <div className="flex flex-col items-center justify-center rounded-xl bg-background p-2 shadow">
+            <p className="text-sm text-muted-foreground">BS Total</p>
+            <p className="text-xl font-semibold text-foreground">
+              {total.bs.toLocaleString()}
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-xl bg-background p-2 shadow">
+            <p className="text-sm text-muted-foreground">IG Total</p>
+            <p className="text-xl font-semibold text-foreground">
+              {total.ig.toLocaleString()}
+            </p>
+          </div>
+        </div>
+
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
@@ -220,6 +208,7 @@ export function AreaChartCompenent() {
                     return new Date(value).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
+                      year: "numeric",
                     });
                   }}
                   indicator="dot"

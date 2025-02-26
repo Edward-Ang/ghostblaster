@@ -17,14 +17,25 @@ import Signup from "./pages/signup";
 import AddAccount from "./pages/add-account";
 import "./App.css";
 import ProfilePage from "./pages/profile";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // ⚡ Add loading state
 
-  // Check authentication status on initial load
+  // ✅ Check authentication status on initial load
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated") === "true";
     setIsAuthenticated(authStatus);
+    setLoading(false); // ⏳ Delay loading state by 10 seconds
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <Router>
@@ -42,7 +53,7 @@ function App() {
         />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected Routes: Wrap everything else in a Route */}
+        {/* Protected Routes */}
         <Route
           path="/*"
           element={
@@ -55,18 +66,13 @@ function App() {
               >
                 <AppSidebar setIsAuthenticated={setIsAuthenticated} />
                 <div className="relative w-full">
-                  <div className="">
-                    <Routes>
-                      <Route path="/home" element={<Home />} />
-                      <Route
-                        path="/business-suite"
-                        element={<BusinessSuite />}
-                      />
-                      <Route path="/instagram" element={<Instagram />} />
-                      <Route path="/add-account" element={<AddAccount />} />
-                      <Route path="/profile" element={<ProfilePage />} />
-                    </Routes>
-                  </div>
+                  <Routes>
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/business-suite" element={<BusinessSuite />} />
+                    <Route path="/instagram" element={<Instagram />} />
+                    <Route path="/add-account" element={<AddAccount />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                  </Routes>
                 </div>
                 <Toaster />
               </SidebarProvider>

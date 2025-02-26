@@ -13,7 +13,7 @@ import {
 import { MdElectricBolt } from "react-icons/md";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { IoMdAdd } from "react-icons/io";
-import { GrPowerReset } from "react-icons/gr";
+import { GrPowerReset, GrView } from "react-icons/gr";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -84,6 +84,9 @@ function Instagram() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [accountToView, setAccountToView] = useState(null);
+  const [accountToViewStatus, setAccountToViewStatus] = useState(null);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
@@ -248,7 +251,7 @@ function Instagram() {
                 </>
               ) : (
                 <>
-                  <Dialog
+                  {/* <Dialog
                     open={openBlast}
                     onOpenChange={(isOpen) => setOpenBlast(isOpen)}
                   >
@@ -289,6 +292,13 @@ function Instagram() {
                                 className="text-left ml-1"
                               >
                                 Page Type
+                                <span
+                                  aria-hidden="true"
+                                  className="text-red-500"
+                                >
+                                  {" "}
+                                  *
+                                </span>
                               </Label>
                             </div>
 
@@ -366,15 +376,16 @@ function Instagram() {
                         </CardContent>
                       </Card>
                     </DialogContent>
-                  </Dialog>
+                  </Dialog> */}
 
-                  {/* <Dialog>
+                  <Dialog>
                     <DialogTrigger asChild>
                       <Button className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
                         <MdElectricBolt />
                         Blast
                       </Button>
                     </DialogTrigger>
+                    <DialogOverlay className="bg-black/40" />
                     <DialogContent
                       className="sm:max-w-[500px] min-h-[400px]"
                       onPointerDownOutside={(e) => e.preventDefault()} // Prevents accidental closing
@@ -393,7 +404,7 @@ function Instagram() {
                           </DialogDescription>
                         </DialogHeader>
 
-                        <div className="flex flex-col gap-2">
+                        {/* <div className="flex flex-col gap-2">
                           <Label htmlFor="image" className="text-left ml-1">
                             Page Type
                           </Label>
@@ -425,7 +436,7 @@ function Instagram() {
                               Primary
                             </button>
                           </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="image" className="text-left ml-1">
@@ -489,15 +500,43 @@ function Instagram() {
                         </DialogFooter>
                       </form>
                     </DialogContent>
-                  </Dialog> */}
+                  </Dialog>
 
-                  <Button
-                    variant="outline"
-                    onClick={() => handleDelete(username)}
-                    className="h-9 w-9 focus:none focus:ring-0 hover:bg-red-500 hover:text-white"
-                  >
-                    <TrashIcon />
-                  </Button>
+                  <div className="flex gap-4">
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleView(username, currentStatus)}
+                            className="h-9 w-9 focus:none focus:ring-0 hover:bg-green-600 hover:text-white"
+                          >
+                            <GrView />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View Screenshot</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleDelete(username)}
+                            className="h-9 w-9 focus:none focus:ring-0 hover:bg-red-500 hover:text-white"
+                          >
+                            <TrashIcon />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete Account</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </>
               )}
             </div>
@@ -649,7 +688,8 @@ function Instagram() {
             description: (
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <strong>{username}</strong> blast successfully!
+                <strong>{username}</strong> blast{" "}
+                <strong>{result.result.count}</strong> users successfully!
               </div>
             ),
           });
@@ -842,6 +882,12 @@ function Instagram() {
     setDeleteDialogOpen(true);
   };
 
+  const handleView = async (username, status) => {
+    setViewDialogOpen(true);
+    setAccountToView(username);
+    setAccountToViewStatus(status === "1" ? "success" : "failed");
+  };
+
   const confirmDelete = async () => {
     if (!accountToDelete) return;
 
@@ -971,7 +1017,9 @@ function Instagram() {
                               <Input
                                 id="secret"
                                 value={secret}
-                                onChange={(e) => setSecret(e.target.value)}
+                                onChange={(e) =>
+                                  setSecret(e.target.value.replace(/\s/g, ""))
+                                }
                                 autoComplete="off"
                                 required
                               />
@@ -1051,6 +1099,50 @@ function Instagram() {
             </Button>
             <Button variant="destructive" onClick={confirmDelete}>
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Confirmation Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogOverlay className="bg-black/60" />
+        <DialogContent
+          className="sm:max-w-[825px]"
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle>View Screenshot</DialogTitle>
+            <DialogDescription>
+              Screenshot of the last blast action of{" "}
+              <strong>@{accountToView}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center items-center">
+            <div className="relative w-fit h-fit max-w-[750px] mx-auto">
+              {accountToView ? (
+                <img
+                  src={`${backendUrl}/screenshots/${accountToView}_${accountToViewStatus}.png`}
+                  alt="Screenshot"
+                  className="w-full h-full object-contain border"
+                  onError={(e) => {
+                    e.target.parentElement.innerHTML = `
+                      <div class="flex items-center justify-center w-[750px] h-[50vh] min-h-[300px] max-h-[600px] border bg-gray-50">
+                        <p class="text-gray-500">No screenshot available</p>
+                      </div>
+                    `;
+                  }}
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full border bg-gray-50">
+                  <p className="text-gray-500">No screenshot available</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
