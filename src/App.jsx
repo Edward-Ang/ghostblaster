@@ -18,6 +18,8 @@ import AddAccount from "./pages/add-account";
 import "./App.css";
 import ProfilePage from "./pages/profile";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true); // ⚡ Add loading state
@@ -31,58 +33,65 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-500" />
-      </div>
+      <ThemeProvider>
+        <div className="flex items-center justify-center h-screen dark:bg-gray-900">
+          <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-500" />
+        </div>
+      </ThemeProvider>
     );
   }
 
   return (
-    <Router>
-      <Routes>
-        {/* Public Route: Login Page */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <Login setIsAuthenticated={setIsAuthenticated} />
-            )
-          }
-        />
-        <Route path="/signup" element={<Signup />} />
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          {/* Public Route: Login Page */}
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/home" replace />
+              ) : (
+                <Login setIsAuthenticated={setIsAuthenticated} />
+              )
+            }
+          />
+          <Route path="/signup" element={<Signup />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/*"
-          element={
-            isAuthenticated ? (
-              <SidebarProvider
-                style={{
-                  "--sidebar-width": "14rem",
-                  "--sidebar-width-mobile": "20rem",
-                }}
-              >
-                <AppSidebar setIsAuthenticated={setIsAuthenticated} />
-                <div className="relative w-full">
-                  <Routes>
-                    <Route path="/home" element={<Home />} />
-                    <Route path="/business-suite" element={<BusinessSuite />} />
-                    <Route path="/instagram" element={<Instagram />} />
-                    <Route path="/add-account" element={<AddAccount />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                  </Routes>
-                </div>
-                <Toaster />
-              </SidebarProvider>
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-      </Routes>
-    </Router>
+          {/* Protected Routes */}
+          <Route
+            path="/*"
+            element={
+              isAuthenticated ? (
+                <SidebarProvider
+                  style={{
+                    "--sidebar-width": "14rem",
+                    "--sidebar-width-mobile": "20rem",
+                  }}
+                >
+                  <AppSidebar setIsAuthenticated={setIsAuthenticated} />
+                  <div className="relative w-full">
+                    <Routes>
+                      <Route path="/home" element={<Home />} />
+                      <Route
+                        path="/business-suite"
+                        element={<BusinessSuite />}
+                      />
+                      <Route path="/instagram" element={<Instagram />} />
+                      <Route path="/add-account" element={<AddAccount />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                    </Routes>
+                  </div>
+                  <Toaster />
+                </SidebarProvider>
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 

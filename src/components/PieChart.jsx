@@ -16,6 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
@@ -35,12 +36,19 @@ const chartConfig = {
 };
 
 export function PieChartComponent() {
+  const { theme } = useTheme();
   const totalVisitors = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
   }, []);
 
   return (
-    <Card className="flex flex-col">
+    <Card
+      className={`flex flex-col ${
+        theme === "dark"
+          ? "border-[var(--border-dark-card)] bg-[var(--bg-dark-card)]"
+          : ""
+      }`}
+    >
       <CardHeader className="items-center pb-0">
         <CardTitle>Pie Chart - Donut with Text</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
@@ -53,7 +61,16 @@ export function PieChartComponent() {
           <ReChartPie>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  className={`${
+                    theme === "dark"
+                      ? "bg-[var(--bg-dark-card)] border-[var(--border-dark-card)]"
+                      : ""
+                  }`}
+                />
+              }
             />
             <Pie
               data={chartData}

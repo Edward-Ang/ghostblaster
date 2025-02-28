@@ -8,7 +8,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { FiSidebar } from "react-icons/fi";
+import { FiSidebar, FiSun, FiMoon } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -25,6 +25,7 @@ import { FaInstagram } from "react-icons/fa";
 import { FaMeta } from "react-icons/fa6";
 import { cn } from "@/lib/utils";
 import logo from "../assets/logo.png";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Static menu items
 const staticItems = [
@@ -54,6 +55,7 @@ export function AppSidebar({ setIsAuthenticated }) {
   const [userEmail, setUserEmail] = useState("");
   const [items, setItems] = useState(staticItems);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -103,7 +105,8 @@ export function AppSidebar({ setIsAuthenticated }) {
       <div
         className={cn(
           "relative flex flex-col h-screen border-r bg-background",
-          isCollapsed ? "w-[70px]" : "w-[240px]"
+          isCollapsed ? "w-[70px]" : "w-[240px]",
+          theme === "dark" ? "border-[var(--border-dark-card)]" : ""
         )}
       >
         <Button
@@ -113,6 +116,19 @@ export function AppSidebar({ setIsAuthenticated }) {
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <FiSidebar className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          className="fixed right-4 top-2 w-10 h-10 z-10"
+          aria-label="Toggle theme"
+        >
+          {theme === "light" ? (
+            <FiMoon className="w-5 h-5" />
+          ) : (
+            <FiSun className="w-5 h-5" />
+          )}
         </Button>
         <div className="flex h-16 items-center px-4">
           <div
@@ -173,7 +189,9 @@ export function AppSidebar({ setIsAuthenticated }) {
                         isCollapsed
                           ? "w-10 h-10 px-0 flex items-center justify-center"
                           : "w-full justify-start",
-                        location.pathname === item.url && isCollapsed && "shadow-md"
+                        location.pathname === item.url &&
+                          isCollapsed &&
+                          "shadow-md"
                       )}
                       asChild
                     >
@@ -191,7 +209,9 @@ export function AppSidebar({ setIsAuthenticated }) {
                         isCollapsed
                           ? "w-10 h-10 px-0 flex items-center justify-center"
                           : "w-full justify-start",
-                        location.pathname === item.url && isCollapsed && "shadow-md"
+                        location.pathname === item.url &&
+                          isCollapsed &&
+                          "shadow-md"
                       )}
                       onClick={() => toggleSubmenu(item.title)}
                     >

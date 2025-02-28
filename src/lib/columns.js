@@ -10,6 +10,9 @@ export const columns = [
   columnHelper.accessor("username", {
     header: "Account",
   }),
+  columnHelper.accessor("count", {
+    header: "Blast Count",
+  }),
   columnHelper.accessor("updated_at", {
     header: "Last Blast",
   }),

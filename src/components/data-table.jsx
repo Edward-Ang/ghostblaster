@@ -15,7 +15,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { useTheme } from "@/contexts/ThemeContext";
+
 export function DataTable({ columns, data }) {
+  const { theme } = useTheme();
   const table = useReactTable({
     data,
     columns,
@@ -23,11 +26,11 @@ export function DataTable({ columns, data }) {
   });
 
   return (
-    <div className="rounded-md border">
+    <div className={`rounded-md border ${theme === "dark" ? "border-[var(--border-dark-card)]" : ""}`}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className={`${theme === "dark" ? "border-[var(--border-dark-card)]" : ""}`}>
               {headerGroup.headers.map((header) => (
                 <TableHead key={header.id}>
                   {header.isPlaceholder
@@ -47,6 +50,7 @@ export function DataTable({ columns, data }) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className={`${theme === "dark" ? "border-[var(--border-dark-card)]" : ""}`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

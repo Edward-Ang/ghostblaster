@@ -15,6 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useTheme } from "@/contexts/ThemeContext"; // Import useTheme hook
 
 const chartConfig = {
   views: {
@@ -35,6 +36,7 @@ export function Chart() {
   const [activeChart, setActiveChart] = React.useState("bs");
   const [loading, setLoading] = React.useState(true);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const { theme } = useTheme(); // Get the current theme
 
   // Fetch data from your database
   React.useEffect(() => {
@@ -98,8 +100,18 @@ export function Chart() {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+    <Card
+      className={`${
+        theme === "dark"
+          ? "border-[var(--border-dark-card)] bg-[var(--bg-dark-card)]"
+          : ""
+      }`}
+    >
+      <CardHeader
+        className={`flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row ${
+          theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+        }`}
+      >
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle>2025</CardTitle>
           <CardDescription>
@@ -112,7 +124,11 @@ export function Chart() {
               <button
                 key={key}
                 data-active={activeChart === key}
-                className="relative w-40 z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+                className={`relative w-40 z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6 ${
+                  theme === "dark"
+                    ? "border-[var(--border-dark-card)] data-[active=true]:bg-[var(--bg-dark-card-hover)]"
+                    : ""
+                }`}
                 onClick={() => setActiveChart(key)}
               >
                 <span className="text-xs text-muted-foreground">
@@ -139,7 +155,13 @@ export function Chart() {
               right: 12,
             }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              vertical={false}
+              stroke={
+                theme === "dark" ? "var(--border-dark-card)" : "var(--border)"
+              }
+            />
+
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -157,7 +179,11 @@ export function Chart() {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  className="w-[150px]"
+                  className={`w-[150px] ${
+                    theme === "dark"
+                      ? "bg-[var(--bg-dark-card)] border-[var(--border-dark-card)]"
+                      : ""
+                  }`}
                   nameKey="views"
                   labelFormatter={(value) => {
                     return new Date(value).toLocaleDateString("en-US", {
@@ -169,7 +195,7 @@ export function Chart() {
                 />
               }
             />
-            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
+            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} activeBar={{ fillOpacity: 0.9 }} />
           </BarChart>
         </ChartContainer>
       </CardContent>

@@ -38,3 +38,28 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Add these dark mode styles */
+:root {
+  --background: #ffffff;
+  --bg-dark-card: #212121;
+  --bg-dark-card-hover: #2E2E2E;
+  --border-dark-card: #374151; 
+  --text: #000000;
+  --primary-color: #1a73e8;
+  --secondary-color: #e8f0fe;
+  --accent-color: #ff4081;
+  --font-family: 'Inter', sans-serif;
+  --border-radius: 8px;
+  --transition-duration: 0.3s;
+}
+
+.dark {
+  --background:  #1E1E1E;
+  --text: #e0e0e0;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+}

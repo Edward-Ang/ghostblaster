@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const chartConfig = {
   visitors: { label: "Visitors" },
@@ -32,6 +33,7 @@ const chartConfig = {
 };
 
 export function AreaChartComponent() {
+  const { theme } = useTheme();
   const [chartData, setChartData] = React.useState([]);
   const [timeRange, setTimeRange] = React.useState("90d");
   const [loading, setLoading] = React.useState(true);
@@ -105,8 +107,18 @@ export function AreaChartComponent() {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row">
+    <Card
+      className={`${
+        theme === "dark"
+          ? "border-[var(--border-dark-card)] bg-[var(--bg-dark-card)]"
+          : ""
+      }`}
+    >
+      <CardHeader
+        className={`flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row ${
+          theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+        }`}
+      >
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Area Chart - Real Data</CardTitle>
           <CardDescription>
@@ -120,33 +132,66 @@ export function AreaChartComponent() {
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
-            className="w-[160px] rounded-lg sm:ml-auto"
+            className={`w-[160px] rounded-lg sm:ml-auto ${
+              theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+            }`}
             aria-label="Select a time range"
           >
             <SelectValue placeholder="Last 3 months" />
           </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="90d" className="rounded-lg">
+          <SelectContent
+            className={`rounded-xl ${
+              theme === "dark" ? " bg-[var(--bg-dark-card)] border-[var(--border-dark-card)]" : ""
+            }`}
+          >
+            <SelectItem
+              value="90d"
+              className={`rounded-lg ${
+                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)]" : ""
+              }`}
+            >
               Last 3 months
             </SelectItem>
-            <SelectItem value="30d" className="rounded-lg">
+            <SelectItem
+              value="30d" 
+              className={`rounded-lg ${
+                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)]" : ""
+              }`}
+            >
               Last 30 days
             </SelectItem>
-            <SelectItem value="7d" className="rounded-lg">
+            <SelectItem
+              value="7d"
+              className={`rounded-lg ${
+                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)]" : ""
+              }`}
+            >
               Last 7 days
             </SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-2 sm:pt-2">
-        <div className="mb-2 grid grid-cols-2 gap-2 rounded-2xl bg-muted p-2 shadow-sm">
-          <div className="flex flex-col items-center justify-center rounded-xl bg-background p-2 shadow">
+        <div
+          className={`mb-2 grid grid-cols-2 gap-2 rounded-2xl p-2 shadow-sm ${
+            theme === "dark" ? "bg-[var(--bg-dark-card-hover)]" : "bg-muted"
+          }`}
+        >
+          <div
+            className={`flex flex-col items-center justify-center rounded-xl p-2 shadow ${
+              theme === "dark" ? "bg-[var(--bg-dark-card)]" : "bg-background"
+            }`}
+          >
             <p className="text-sm text-muted-foreground">BS Total</p>
             <p className="text-xl font-semibold text-foreground">
               {total.bs.toLocaleString()}
             </p>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-xl bg-background p-2 shadow">
+          <div
+            className={`flex flex-col items-center justify-center rounded-xl p-2 shadow ${
+              theme === "dark" ? "bg-[var(--bg-dark-card)]" : "bg-background"
+            }`}
+          >
             <p className="text-sm text-muted-foreground">IG Total</p>
             <p className="text-xl font-semibold text-foreground">
               {total.ig.toLocaleString()}
@@ -185,7 +230,12 @@ export function AreaChartComponent() {
                 />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              vertical={false}
+              stroke={
+                theme === "dark" ? "var(--border-dark-card)" : "var(--border)"
+              }
+            />
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -212,6 +262,11 @@ export function AreaChartComponent() {
                     });
                   }}
                   indicator="dot"
+                  className={`${
+                    theme === "dark"
+                      ? "bg-[var(--bg-dark-card)] border-[var(--border-dark-card)]"
+                      : ""
+                  }`}
                 />
               }
             />

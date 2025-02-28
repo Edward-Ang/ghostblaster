@@ -65,8 +65,10 @@ import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import BsHeader from "@/components/bs-header";
 import IgHeader from "@/components/ig-header";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function Instagram() {
+  const { theme } = useTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [secret, setSecret] = useState("");
@@ -80,7 +82,6 @@ function Instagram() {
   const [runningAssetIds, setRunningAssetIds] = useState({});
   const [stoppingAssetIds, setStoppingAssetIds] = useState(new Set());
   const [open, setOpen] = useState(false);
-  const [openBlast, setOpenBlast] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
@@ -124,6 +125,15 @@ function Instagram() {
         cell: (info) => <div className="text-left m-2">{info.getValue()}</div>,
       };
     }
+    if (col.accessorKey === "count") {
+      return {
+        ...col,
+        header: () => <div className="font-bold m-2">Blast Count</div>,
+        cell: (info) => (
+          <div className="text-left m-2 ml-4">{info.getValue()}</div>
+        ),
+      };
+    }
     if (col.accessorKey === "updated_at") {
       return {
         ...col,
@@ -165,43 +175,92 @@ function Instagram() {
                 switch (status) {
                   case "1":
                     return (
-                      <Badge variant="success" className="bg-green-100">
+                      <Badge
+                        variant="success"
+                        className={`bg-green-100 ${
+                          theme === "dark"
+                            ? "bg-green-800 border-[var(--border-dark-card)]"
+                            : ""
+                        }`}
+                      >
                         Completed
                       </Badge>
                     );
                   case "2":
                     return (
-                      <Badge variant="warning" className="bg-gray-100">
+                      <Badge
+                        variant="warning"
+                        className={`bg-gray-100 ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-[var(--border-dark-card)]"
+                            : ""
+                        }`}
+                      >
                         Not Started
                       </Badge>
                     );
                   case "3":
                     return (
-                      <Badge variant="warning" className="bg-red-200">
+                      <Badge
+                        variant="warning"
+                        className={`bg-red-200 ${
+                          theme === "dark"
+                            ? "bg-red-800 border-[var(--border-dark-card)]"
+                            : ""
+                        }`}
+                      >
                         Failed
                       </Badge>
                     );
                   case "4":
                     return (
-                      <Badge variant="warning" className="bg-yellow-100">
+                      <Badge
+                        variant="warning"
+                        className={`bg-yellow-100 ${
+                          theme === "dark"
+                            ? "bg-yellow-700 border-[var(--border-dark-card)]"
+                            : ""
+                        }`}
+                      >
                         Stopped
                       </Badge>
                     );
                   case "5":
                     return (
-                      <Badge variant="warning" className="bg-blue-100">
+                      <Badge
+                        variant="warning"
+                        className={`bg-blue-100 ${
+                          theme === "dark"
+                            ? "bg-blue-800 border-[var(--border-dark-card)]"
+                            : ""
+                        }`}
+                      >
                         New
                       </Badge>
                     );
                   case "6":
                     return (
-                      <Badge variant="warning" className="bg-purple-200">
+                      <Badge
+                        variant="warning"
+                        className={`bg-purple-200 ${
+                          theme === "dark"
+                            ? "bg-purple-800 border-[var(--border-dark-card)]"
+                            : ""
+                        }`}
+                      >
                         {isThisRowStopping ? "Stopping" : "Blasting"}
                       </Badge>
                     );
                   default:
                     return (
-                      <Badge variant="warning" className="bg-red-200">
+                      <Badge
+                        variant="warning"
+                        className={`bg-red-200 ${
+                          theme === "dark"
+                            ? "bg-red-800 border-[var(--border-dark-card)]"
+                            : ""
+                        }`}
+                      >
                         Error
                       </Badge>
                     );
@@ -380,7 +439,11 @@ function Instagram() {
 
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
+                      <Button
+                        className={`h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700 ${
+                          theme === "dark" ? "text-white" : ""
+                        }`}
+                      >
                         <MdElectricBolt />
                         Blast
                       </Button>
@@ -447,7 +510,11 @@ function Instagram() {
                             id="image"
                             type="file"
                             accept="image/*"
-                            className="w-full text-center placeholder:text-center text-gray-500 cursor-pointer"
+                            className={`w-full text-center placeholder:text-center text-gray-500 cursor-pointer ${
+                              theme === "dark"
+                                ? "border-[var(--border-dark-card)]"
+                                : ""
+                            }`}
                           />
                         </div>
 
@@ -462,7 +529,11 @@ function Instagram() {
                             ref={contentRef}
                             id="content"
                             placeholder="Enter your blast content"
-                            className="min-h-[200px] max-h-[500px]"
+                            className={`min-h-[200px] max-h-[500px] ${
+                              theme === "dark"
+                                ? "border-[var(--border-dark-card)]"
+                                : ""
+                            }`}
                             required
                           />
                         </div>
@@ -479,7 +550,11 @@ function Instagram() {
                             id="limit"
                             type="number"
                             placeholder="Max: 50"
-                            className="w-full"
+                            className={`w-full ${
+                              theme === "dark"
+                                ? "border-[var(--border-dark-card)]"
+                                : ""
+                            }`}
                             onChange={(e) => {
                               let value = e.target.value;
                               if (value < 1 || value > 50) {
@@ -493,7 +568,9 @@ function Instagram() {
                         <DialogFooter>
                           <Button
                             type="submit"
-                            className="bg-blue-600 hover:bg-blue-700"
+                            className={`bg-blue-600 hover:bg-blue-700 ${
+                              theme === "dark" ? "text-white" : ""
+                            }`}
                           >
                             Blast
                           </Button>
@@ -509,7 +586,11 @@ function Instagram() {
                           <Button
                             variant="outline"
                             onClick={() => handleView(username, currentStatus)}
-                            className="h-9 w-9 focus:none focus:ring-0 hover:bg-green-600 hover:text-white"
+                            className={`h-9 w-9 focus:none focus:ring-0 hover:bg-green-600 hover:text-white ${
+                              theme === "dark"
+                                ? "border-[var(--border-dark-card)]"
+                                : ""
+                            }`}
                           >
                             <GrView />
                           </Button>
@@ -526,7 +607,11 @@ function Instagram() {
                           <Button
                             variant="outline"
                             onClick={() => handleDelete(username)}
-                            className="h-9 w-9 focus:none focus:ring-0 hover:bg-red-500 hover:text-white"
+                            className={`h-9 w-9 focus:none focus:ring-0 hover:bg-red-500 hover:text-white ${
+                              theme === "dark"
+                                ? "border-[var(--border-dark-card)]"
+                                : ""
+                            }`}
                           >
                             <TrashIcon />
                           </Button>
@@ -885,7 +970,13 @@ function Instagram() {
   const handleView = async (username, status) => {
     setViewDialogOpen(true);
     setAccountToView(username);
-    setAccountToViewStatus(status === "1" ? "success" : "failed");
+    if (status === "1") {
+      setAccountToViewStatus("success");
+    } else if (status === "3" || status === "4") {
+      setAccountToViewStatus("failed");
+    } else {
+      setAccountToViewStatus("other");
+    }
   };
 
   const confirmDelete = async () => {
@@ -950,7 +1041,9 @@ function Instagram() {
               placeholder="Filter by account name..."
               value={filterValue}
               onChange={(e) => setFilterValue(e.target.value)}
-              className="h-9 max-w-sm" // Responsive width
+              className={`h-9 max-w-sm ${
+                theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+              }`}
             />
             <div className="flex justify-end gap-2">
               <TooltipProvider>
@@ -972,6 +1065,11 @@ function Instagram() {
                           size="icon"
                           onMouseEnter={() => setShowTooltip(true)}
                           onMouseLeave={() => setShowTooltip(false)}
+                          className={`h-9 w-9 ${
+                            theme === "dark"
+                              ? "border-[var(--border-dark-card)]"
+                              : ""
+                          }`}
                         >
                           <IoMdAdd />
                           <span className="sr-only">Add new account</span>
@@ -999,6 +1097,11 @@ function Instagram() {
                                 onChange={(e) => setUsername(e.target.value)}
                                 autoComplete="off"
                                 required
+                                className={`${
+                                  theme === "dark"
+                                    ? "border-[var(--border-dark-card)]"
+                                    : ""
+                                }`}
                               />
                             </div>
                             <div className="space-y-2">
@@ -1010,6 +1113,11 @@ function Instagram() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 autoComplete="new-password"
                                 required
+                                className={`${
+                                  theme === "dark"
+                                    ? "border-[var(--border-dark-card)]"
+                                    : ""
+                                }`}
                               />
                             </div>
                             <div className="space-y-2">
@@ -1022,6 +1130,11 @@ function Instagram() {
                                 }
                                 autoComplete="off"
                                 required
+                                className={`${
+                                  theme === "dark"
+                                    ? "border-[var(--border-dark-card)]"
+                                    : ""
+                                }`}
                               />
                             </div>
                             <div className="flex">
@@ -1046,7 +1159,9 @@ function Instagram() {
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
-                    className="h-9 w-9"
+                    className={`h-9 w-9 ${
+                      theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                    }`}
                     onClick={resetStatus}
                   >
                     <GrPowerReset />
@@ -1083,21 +1198,30 @@ function Instagram() {
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogOverlay className="bg-black/60" />
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] border-[var(--border-dark-card)]">
           <DialogHeader>
             <DialogTitle>Delete Account</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the account {accountToDelete}?
+              Are you sure you want to delete the account <strong>@{accountToDelete}</strong>?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
+              className={`${
+                theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+              }`}
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              className={`${
+                theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+              }`}
+            >
               Delete
             </Button>
           </DialogFooter>
@@ -1108,7 +1232,7 @@ function Instagram() {
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogOverlay className="bg-black/60" />
         <DialogContent
-          className="sm:max-w-[825px]"
+          className="sm:max-w-[825px] border-[var(--border-dark-card)]"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
@@ -1124,24 +1248,30 @@ function Instagram() {
                 <img
                   src={`${backendUrl}/screenshots/${accountToView}_${accountToViewStatus}.png`}
                   alt="Screenshot"
-                  className="w-full h-full object-contain border"
+                  className="w-full h-full object-contain border-[var(--border-dark-card)]"
                   onError={(e) => {
                     e.target.parentElement.innerHTML = `
-                      <div class="flex items-center justify-center w-[750px] h-[50vh] min-h-[300px] max-h-[600px] border bg-gray-50">
+                      <div class="flex items-center justify-center w-[750px] h-[50vh] min-h-[300px] max-h-[600px] border-[var(--border-dark-card)] bg-gray-50">
                         <p class="text-gray-500">No screenshot available</p>
                       </div>
                     `;
                   }}
                 />
               ) : (
-                <div className="flex items-center justify-center w-full h-full border bg-gray-50">
+                <div className="flex items-center justify-center w-full h-full border-[var(--border-dark-card)] bg-gray-50">
                   <p className="text-gray-500">No screenshot available</p>
                 </div>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setViewDialogOpen(false)}
+              className={`${
+                theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+              }`}
+            >
               Close
             </Button>
           </DialogFooter>
