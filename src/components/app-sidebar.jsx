@@ -117,9 +117,10 @@ export function AppSidebar({ setIsAuthenticated }) {
         <Button
           variant="ghost"
           size="icon"
-          className={`absolute -right-12 top-2 w-10 h-10 z-10 ${
+          className={`absolute -right-12 top-2 w-10 h-10 ${
             theme === "dark" ? "hover:!bg-[var(--bg-dark-card-hover)]" : ""
           }`}
+          style={{ zIndex: 101 }}
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <FiSidebar className="h-4 w-4" />
@@ -131,6 +132,7 @@ export function AppSidebar({ setIsAuthenticated }) {
           className={`fixed right-4 top-2 w-10 h-10 z-10 ${
             theme === "dark" ? "hover:!bg-[var(--bg-dark-card-hover)]" : ""
           }`}
+          style={{ zIndex: 101 }}
           aria-label="Toggle theme"
         >
           {theme === "light" ? (

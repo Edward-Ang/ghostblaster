@@ -9,8 +9,8 @@ function Home() {
   return (
     <div className="flex flex-col w-full min-h-screen">
       <header
-        className={`text-black p-4 shadow-md sticky top-0 ${theme === "dark" ? "text-white var(--background)" : "text-black var(--background)"}`}
-        style={{ zIndex: 2 }}
+        className={`text-black p-4 shadow-md sticky top-0 ${theme === "dark" ? "text-white var(--background)" : "text-black bg-white"}`}
+        style={{ zIndex: 100 }}
       >
         <h1 className="text-lg font-bold">Dashboard</h1>
       </header>
