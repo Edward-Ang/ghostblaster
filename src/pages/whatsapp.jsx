@@ -1,5 +1,7 @@
-import React from "react";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import WaHeader from "@/components/wa-header";
+import { useTheme } from "@/contexts/ThemeContext";
+import { IoMdAdd } from "react-icons/io";
 import { Button } from "@/components/ui/button";
 import {
   Loader2,
@@ -10,19 +12,17 @@ import {
   StopCircleIcon,
   InfoIcon,
 } from "lucide-react";
-import { MdElectricBolt } from "react-icons/md";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { IoMdAdd } from "react-icons/io";
-import { GrPowerReset, GrView } from "react-icons/gr";
-import { format } from "date-fns";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogOverlay,
+  DialogClose,
+} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -37,54 +37,34 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogOverlay,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { MdElectricBolt } from "react-icons/md";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { GrPowerReset, GrView } from "react-icons/gr";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { columns } from "@/lib/columns";
+import { waColumns } from "@/lib/wa-columns";
 import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
-import BsHeader from "@/components/bs-header";
-import IgHeader from "@/components/ig-header";
-import { useTheme } from "@/contexts/ThemeContext";
 
-function Instagram() {
+function Whatsapp() {
   const { theme } = useTheme();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [secret, setSecret] = useState("");
-  const [userid, setUserid] = useState("");
-  const fileInputRef = useRef();
-  const contentRef = useRef();
-  const limitRef = useRef(null);
   const { toast } = useToast();
+  const [userid, setUserid] = useState("");
+  const [username, setUsername] = useState("");
   const [data, setData] = useState([]);
   const [filterValue, setFilterValue] = useState("");
   const [runningAssetIds, setRunningAssetIds] = useState({});
   const [stoppingAssetIds, setStoppingAssetIds] = useState(new Set());
+  const fileInputRef = useRef();
+  const contentRef = useRef();
+  const limitRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [accountToDelete, setAccountToDelete] = useState(null);
+  const [rawPhoneNumber, setRawPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [accountToView, setAccountToView] = useState(null);
   const [accountToViewStatus, setAccountToViewStatus] = useState(null);
@@ -98,13 +78,14 @@ function Instagram() {
 
     const fetchData = async () => {
       await getAllPage(userId); // Wait for getAllPage to finish
-      await refreshStatus(); // Execute refreshStatus after getAllPage
+      // await refreshStatus(); // Execute refreshStatus after getAllPage
     };
 
     fetchData();
   }, []);
 
   const filteredData = data
+    // .filter((item) => item.mobile_number.toString().includes(filterValue))
     .filter((item) =>
       item.username.toLowerCase().includes(filterValue.toLowerCase())
     )
@@ -117,12 +98,29 @@ function Instagram() {
       return 0;
     });
 
-  const column = [...columns].map((col) => {
+  const column = [...waColumns].map((col) => {
     if (col.accessorKey === "username") {
       return {
         ...col,
         header: () => <div className="font-bold m-2">Account</div>,
-        cell: (info) => <div className="text-left m-2">{info.getValue()}</div>,
+        cell: (info) => {
+          const userName = info.getValue();
+          return <div className="text-left m-2">{userName}</div>;
+        },
+      };
+    }
+    if (col.accessorKey === "mobile_number") {
+      return {
+        ...col,
+        header: () => <div className="font-bold m-2">Mobile Number</div>,
+        cell: (info) => {
+          const phoneNumber = info.getValue();
+          const formatted = phoneNumber.replace(
+            /(\d{2})(\d{4})(\d{4})/,
+            "$1-$2 $3"
+          );
+          return <div className="text-left m-2">+60 {formatted}</div>;
+        },
       };
     }
     if (col.accessorKey === "count") {
@@ -162,9 +160,9 @@ function Instagram() {
         ...col,
         header: () => <div className="font-bold m-2 ml-4">Status</div>,
         cell: (info) => {
-          const username = info.row.original.username;
-          const isBlasting = runningAssetIds[username] !== undefined;
-          const isThisRowStopping = stoppingAssetIds.has(username);
+          const mobile_number = info.row.original.mobile_number;
+          const isBlasting = runningAssetIds[mobile_number] !== undefined;
+          const isThisRowStopping = stoppingAssetIds.has(mobile_number);
 
           // Override status to "Blasting" if the username is in runningAssetIds
           const status = isBlasting ? "6" : info.getValue();
@@ -277,8 +275,9 @@ function Instagram() {
         header: () => <div className="font-bold m-2">Actions</div>,
         cell: (info) => {
           const username = info.row.original.username;
-          const isThisRowRunning = runningAssetIds[username];
-          const isThisRowStopping = stoppingAssetIds.has(username);
+          const mobile_number = info.row.original.mobile_number;
+          const isThisRowRunning = runningAssetIds[mobile_number];
+          const isThisRowStopping = stoppingAssetIds.has(mobile_number);
           const currentStatus = info.row.original.status;
           const shouldShowRunning = isThisRowRunning || currentStatus == "6";
           // if (username === "edward.ang1211") {
@@ -310,133 +309,6 @@ function Instagram() {
                 </>
               ) : (
                 <>
-                  {/* <Dialog
-                    open={openBlast}
-                    onOpenChange={(isOpen) => setOpenBlast(isOpen)}
-                  >
-                    <DialogTitle>
-                      <VisuallyHidden>Start Blast Dialog</VisuallyHidden>
-                    </DialogTitle>
-                    <DialogTrigger asChild>
-                      <Button className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
-                        <MdElectricBolt />
-                        Blast
-                      </Button>
-                    </DialogTrigger>
-                    <DialogOverlay className="bg-black/20" />
-                    <DialogContent
-                      className="sm:max-w-[500px]"
-                      onPointerDownOutside={(e) => e.preventDefault()}
-                    >
-                      <Card className="border-none shadow-none">
-                        <CardHeader>
-                          <CardTitle className="text-2xl font-bold">
-                            Start to Blast
-                          </CardTitle>
-                          <DialogDescription>
-                            <strong>@{username}</strong>
-                          </DialogDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <form
-                            onSubmit={(e) => {
-                              e.preventDefault();
-                              handleBlast(username);
-                            }}
-                            className="flex flex-col gap-4"
-                          >
-                            <div className="flex flex-col gap-2">
-                              <Label
-                                htmlFor="pageType"
-                                className="text-left ml-1"
-                              >
-                                Page Type
-                                <span
-                                  aria-hidden="true"
-                                  className="text-red-500"
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </Label>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                              <Label htmlFor="image" className="text-left ml-1">
-                                Image
-                              </Label>
-                              <Input
-                                ref={fileInputRef}
-                                id="image"
-                                type="file"
-                                accept="image/*"
-                                className="w-full text-gray-500 cursor-pointer"
-                              />
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                              <Label
-                                htmlFor="content"
-                                className="text-left ml-1"
-                              >
-                                Content
-                                <span
-                                  aria-hidden="true"
-                                  className="text-red-500"
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </Label>
-                              <Textarea
-                                ref={contentRef}
-                                id="content"
-                                placeholder="Enter your blast content"
-                                className="min-h-[200px] max-h-[500px]"
-                                required
-                              />
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                              <Label htmlFor="limit" className="text-left ml-1">
-                                Limit
-                                <span
-                                  aria-hidden="true"
-                                  className="text-red-500"
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </Label>
-                              <Input
-                                ref={limitRef}
-                                id="limit"
-                                type="number"
-                                placeholder="Max: 50"
-                                className="w-full"
-                                onChange={(e) => {
-                                  let value = e.target.value;
-                                  if (value < 1 || value > 50)
-                                    e.target.value = "";
-                                }}
-                                required
-                              />
-                            </div>
-
-                            <div className="flex">
-                              <Button
-                                type="submit"
-                                className="w-full bg-blue-600 hover:bg-blue-700"
-                              >
-                                Blast
-                              </Button>
-                            </div>
-                          </form>
-                        </CardContent>
-                      </Card>
-                    </DialogContent>
-                  </Dialog> */}
-
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -456,7 +328,7 @@ function Instagram() {
                       <form
                         onSubmit={(e) => {
                           e.preventDefault(); // Prevents form from submitting normally
-                          handleBlast(username); // Call the blast function
+                          handleBlast(mobile_number, username); // Call the blast function
                         }}
                         className="flex flex-col gap-4 py-4"
                       >
@@ -466,40 +338,6 @@ function Instagram() {
                             <strong>@{username}</strong>
                           </DialogDescription>
                         </DialogHeader>
-
-                        {/* <div className="flex flex-col gap-2">
-                          <Label htmlFor="image" className="text-left ml-1">
-                            Page Type
-                          </Label>
-                          <div className="grid grid-cols-2 gap-2 p-1 rounded-lg border bg-muted">
-                            <button
-                              type=""
-                              onClick={(e) => {
-                                handleSelect(e, "general");
-                              }}
-                              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                                selected === "general"
-                                  ? "bg-background text-foreground shadow-sm"
-                                  : "text-muted-foreground hover:bg-background/50"
-                              }`}
-                            >
-                              General
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                handleSelect(e, "primary");
-                              }}
-                              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                                selected === "primary"
-                                  ? "bg-background text-foreground shadow-sm"
-                                  : "text-muted-foreground hover:bg-background/50"
-                              }`}
-                            >
-                              Primary
-                            </button>
-                          </div>
-                        </div> */}
 
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="image" className="text-left ml-1">
@@ -585,7 +423,7 @@ function Instagram() {
                         <TooltipTrigger asChild>
                           <Button
                             variant="outline"
-                            onClick={() => handleView(username, currentStatus)}
+                            onClick={() => handleView(mobile_number, currentStatus)}
                             className={`h-9 w-9 focus:none focus:ring-0 hover:bg-green-600 hover:text-white ${
                               theme === "dark"
                                 ? "border-[var(--border-dark-card)]"
@@ -632,35 +470,34 @@ function Instagram() {
     return col;
   });
 
-  const refreshStatus = async () => {
-    if (!data || !Array.isArray(data)) {
-      console.error("Invalid data or result is not an array:", data);
-      return;
-    }
+  const formatPhoneNumber = (value) => {
+    // Remove non-numeric characters
+    const cleaned = value.replace(/\D/g, "");
 
-    setRunningAssetIds((prev) => {
-      // Keep running states for items that are still processing
-      const newState = Object.fromEntries(
-        Object.entries(prev).filter((entry) => {
-          const [username] = entry;
-          const correspondingItem = data.find(
-            (item) =>
-              item.username === username &&
-              (item.status === "6" || item.status === null) // Add logic to keep running states
-          );
-          return correspondingItem !== undefined;
-        })
-      );
+    // Format as "XX-XXXX XXXX"
+    let formatted = "";
+    if (cleaned.length > 0) formatted += cleaned.slice(0, 2);
+    if (cleaned.length > 2) formatted += "-" + cleaned.slice(2, 6);
+    if (cleaned.length > 6) formatted += " " + cleaned.slice(6, 10);
 
-      return newState;
-    });
+    return formatted.trim();
   };
 
-  // Update getAllPage to also handle running states
+  const handleChange = (e) => {
+    const input = e.target.value.replace(/\D/g, ""); // Keep only numbers
+
+    setPhoneNumber(formatPhoneNumber(input));
+    setRawPhoneNumber(input);
+  };
+
+  const resetFields = () => {
+    setPhoneNumber("");
+  };
+
   const getAllPage = async (userId) => {
     try {
       const response = await fetch(
-        `${backendUrl}/getAllPage?platform=ig&userid=${userId}`,
+        `${backendUrl}/getAllPage?platform=wa&userid=${userId}`,
         {
           method: "GET",
           headers: {
@@ -688,10 +525,10 @@ function Instagram() {
           const newRunningIds = { ...prev };
           fetchedData.forEach((item) => {
             if (["1", "4"].includes(item.status)) {
-              delete newRunningIds[item.username];
+              delete newRunningIds[item.mobile_number];
               setStoppingAssetIds((prev) => {
                 const newSet = new Set(prev);
-                newSet.delete(item.username);
+                newSet.delete(item.mobile_number);
                 return newSet;
               });
             }
@@ -707,36 +544,70 @@ function Instagram() {
     }
   };
 
-  const resetStatus = async () => {
+  const handleAdd = async (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (!rawPhoneNumber || !username) {
+      return;
+    }
+
+    // Simulate a login request
     try {
-      const response = await fetch(`${backendUrl}/resetIgStatus`, {
-        method: "GET",
+      console.log;
+      const response = await fetch(`${backendUrl}/addWaAccount`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          mobileNo: rawPhoneNumber,
+          username: username,
+          userid: userid,
+        }),
       });
 
-      if (response.ok) {
-        await getAllPage(userid);
+      const data = await response.json();
+      console.log("data: ", data);
+
+      if (data.status) {
+        getAllPage(userid);
+        setOpen(!open);
+        resetFields();
         toast({
           variant: "success",
           description: (
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              Status reset successfully!
+              <CheckCircle2 className="text-green-500 h-5 w-5" />
+              <span>Account added successfully!</span>
             </div>
           ),
         });
       } else {
-        const errorData = await response.json();
-        console.error("Error:", errorData);
+        toast({
+          variant: "error",
+          description: (
+            <div className="flex items-center">
+              <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+              Account already exist.
+            </div>
+          ),
+        });
       }
-    } catch (error) {
-      console.error("Fetch failed:", error);
+    } catch (err) {
+      toast({
+        variant: "error",
+        description: (
+          <div className="flex items-center">
+            <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
+            {err}
+          </div>
+        ),
+      });
     }
   };
 
-  const handleBlast = async (username) => {
+  const handleBlast = async (mobile_number, username) => {
     const file = fileInputRef.current.files[0];
     const content = contentRef.current.value;
     const limit = limitRef.current.value;
@@ -747,7 +618,7 @@ function Instagram() {
 
     setRunningAssetIds((prev) => ({
       ...prev,
-      [username]: username,
+      [mobile_number]: mobile_number,
     }));
 
     const formData = new FormData();
@@ -755,11 +626,12 @@ function Instagram() {
     formData.append("content", content);
     formData.append("limit", limit);
     formData.append("username", username);
+    formData.append("mobileNo", mobile_number);
     formData.append("userid", userid);
     formData.append("process_id", crypto.randomUUID());
 
     try {
-      const response = await fetch(`${backendUrl}/blastIG`, {
+      const response = await fetch(`${backendUrl}/blastWA`, {
         method: "POST",
         body: formData,
       });
@@ -834,142 +706,15 @@ function Instagram() {
       console.log(username);
       setRunningAssetIds((prev) => {
         const newState = { ...prev };
-        delete newState[username];
+        delete newState[mobile_number];
         return newState;
       });
     }
   };
 
-  const handleStopBlast = async (username) => {
-    // Immediately mark as stopping
-    setStoppingAssetIds((prev) => new Set([...prev, username]));
-
-    try {
-      const response = await fetch(`${backendUrl}/cancelIG`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          userid: userid,
-        }),
-      });
-
-      if (response.ok) {
-        toast({
-          variant: "success",
-          description: (
-            <div className="flex items-center">
-              <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-              Blasting successfully stopped!
-            </div>
-          ),
-        });
-
-        await getAllPage(userid);
-      } else {
-        const errorData = await response.json();
-        console.log("here", errorData.error);
-        toast({
-          variant: "error",
-          description: (
-            <div className="flex items-center">
-              <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
-              {errorData.error}
-            </div>
-          ),
-        });
-        await getAllPage(userid);
-      }
-    } catch (error) {
-      console.log("Stop blast: ", error.message);
-      toast({
-        variant: "error",
-        description: (
-          <div className="flex items-center">
-            <InfoIcon className="mr-2 h-4 w-4 text-red-500" />
-            {error.message}
-          </div>
-        ),
-      });
-    } finally {
-      setRunningAssetIds((prev) => {
-        const newState = { ...prev };
-        delete newState[username];
-        return newState;
-      });
-      // Remove from stopping state
-      setStoppingAssetIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(username);
-        return newSet;
-      });
-    }
-  };
-
-  const handleAdd = async (e) => {
-    e.preventDefault();
-
-    // Basic validation
-    if (!username || !password || !secret) {
-      // setError("Please fill in all fields");
-      return;
-    }
-
-    // Simulate a login request
-    try {
-      const response = await fetch(`${backendUrl}/addIgAccount`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-          secret: secret,
-          userid: userid,
-        }),
-      });
-
-      const data = await response.json();
-      console.log("data: ", data);
-
-      if (data.status) {
-        getAllPage(userid);
-        setOpen(!open);
-        resetFields();
-        toast({
-          variant: "success",
-          description: (
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="text-green-500 h-5 w-5" />
-              <span>Account added successfully!</span>
-            </div>
-          ),
-        });
-      } else {
-        toast({
-          description: "Account already exist.",
-          variant: "error",
-        });
-      }
-    } catch (err) {
-      toast({
-        description: "An error occurred please try again!",
-        variant: "error",
-      });
-    }
-  };
-
-  const handleDelete = async (username) => {
-    setAccountToDelete(username);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleView = async (username, status) => {
+  const handleView = async (mobileNo, status) => {
     setViewDialogOpen(true);
-    setAccountToView(username);
+    setAccountToView(mobileNo);
     if (status === "1") {
       setAccountToViewStatus("success");
     } else if (status === "3" || status === "4") {
@@ -979,61 +724,9 @@ function Instagram() {
     }
   };
 
-  const confirmDelete = async () => {
-    if (!accountToDelete) return;
-
-    try {
-      const response = await fetch(`${backendUrl}/deleteIgAccount`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: accountToDelete, userid }),
-      });
-
-      if (response.ok) {
-        toast({
-          variant: "success",
-          description: (
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="text-green-500 h-5 w-5" />
-              <span>Account deleted successfully!</span>
-            </div>
-          ),
-        });
-        // Remove the deleted account from the UI
-        setData((prevData) =>
-          prevData.filter((item) => item.username !== accountToDelete)
-        );
-      } else {
-        toast({
-          description: "Failed to delete account!",
-          variant: "error",
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      toast({
-        description: "An error occurred while deleting.",
-        variant: "error",
-      });
-    } finally {
-      setDeleteDialogOpen(false);
-      setAccountToDelete(null);
-    }
-  };
-
-  const resetFields = () => {
-    setUsername("");
-    setPassword("");
-    setSecret("");
-  };
-
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <IgHeader />
-
-      {/* Main Content */}
+      <WaHeader />
       <main className="flex-grow">
         <div className="px-4 pb-6">
           <div className="flex justify-between items-center gap-4 my-4">
@@ -1084,11 +777,32 @@ function Instagram() {
                       <Card className="border-none shadow-none">
                         <CardHeader>
                           <CardTitle className="text-2xl font-bold">
-                            Add Instagram Account
+                            Add WhatsApp Account
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <form onSubmit={handleAdd} className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="username">Mobile Number</Label>
+                              <div className="relative w-full">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base text-gray-500">
+                                  +60
+                                </span>
+                                <Input
+                                  id="phone"
+                                  value={phoneNumber}
+                                  onChange={handleChange}
+                                  autoComplete="off"
+                                  required
+                                  maxLength={12}
+                                  className={`w-full pl-12 !text-base ${
+                                    theme === "dark"
+                                      ? "border-[var(--border-dark-card)]"
+                                      : ""
+                                  }`}
+                                />
+                              </div>
+                            </div>
                             <div className="space-y-2">
                               <Label htmlFor="username">Username</Label>
                               <Input
@@ -1097,40 +811,7 @@ function Instagram() {
                                 onChange={(e) => setUsername(e.target.value)}
                                 autoComplete="off"
                                 required
-                                className={`${
-                                  theme === "dark"
-                                    ? "border-[var(--border-dark-card)]"
-                                    : ""
-                                }`}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="password">Password</Label>
-                              <Input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                autoComplete="new-password"
-                                required
-                                className={`${
-                                  theme === "dark"
-                                    ? "border-[var(--border-dark-card)]"
-                                    : ""
-                                }`}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="secret">Secret</Label>
-                              <Input
-                                id="secret"
-                                value={secret}
-                                onChange={(e) =>
-                                  setSecret(e.target.value.replace(/\s/g, ""))
-                                }
-                                autoComplete="off"
-                                required
-                                className={`${
+                                className={`!text-base ${
                                   theme === "dark"
                                     ? "border-[var(--border-dark-card)]"
                                     : ""
@@ -1157,81 +838,11 @@ function Instagram() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`h-9 w-9 ${
-                      theme === "dark" ? "border-[var(--border-dark-card)]" : ""
-                    }`}
-                    onClick={resetStatus}
-                  >
-                    <GrPowerReset />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Reset status</p>
-                </TooltipContent>
-              </Tooltip>
-              {/* <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="h-9 w-9 focus:none focus:ring-0"
-                  >
-                    <MoreVerticalIcon />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="mr-6">
-                  <DropdownMenuLabel>Tools</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick="">
-                    <RefreshCcwIcon />
-                    Fetch new page
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu> */}
             </div>
           </div>
           <DataTable columns={column} data={filteredData} />
         </div>
       </main>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogOverlay className="bg-black/60" />
-        <DialogContent className="sm:max-w-[425px] border-[var(--border-dark-card)]">
-          <DialogHeader>
-            <DialogTitle>Delete Account</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete the account{" "}
-              <strong>@{accountToDelete}</strong>?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              className={`${
-                theme === "dark" ? "border-[var(--border-dark-card)]" : ""
-              }`}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmDelete}
-              className={`${
-                theme === "dark"
-                  ? "border-[var(--border-dark-card)] text-white"
-                  : ""
-              }`}
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* View Confirmation Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
@@ -1244,7 +855,7 @@ function Instagram() {
             <DialogTitle>View Screenshot</DialogTitle>
             <DialogDescription>
               Screenshot of the last blast action of{" "}
-              <strong>@{accountToView}</strong>
+              <strong>+60 {accountToView}</strong>
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center items-center">
@@ -1290,4 +901,4 @@ function Instagram() {
   );
 }
 
-export default Instagram;
+export default Whatsapp;

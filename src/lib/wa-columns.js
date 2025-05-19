@@ -4,9 +4,12 @@ import { createColumnHelper } from "@tanstack/react-table";
 
 const columnHelper = createColumnHelper();
 
-export const columns = [
+export const waColumns = [
   columnHelper.accessor("username", {
     header: "Account",
+  }),
+  columnHelper.accessor("mobile_number", {
+    header: "Mobile Number",
   }),
   columnHelper.accessor("count", {
     header: "Blast Count",

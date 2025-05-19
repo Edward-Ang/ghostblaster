@@ -12,6 +12,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Home from "./pages/home";
 import BusinessSuite from "@/pages/business-suite";
 import Instagram from "@/pages/instagram";
+import Whatsapp from "./pages/whatsapp";
 import Login from "./pages/login";
 import Signup from "./pages/signup";
 import AddAccount from "./pages/add-account";
@@ -78,6 +79,7 @@ function App() {
                         element={<BusinessSuite />}
                       />
                       <Route path="/instagram" element={<Instagram />} />
+                      <Route path="/whatsapp" element={<Whatsapp />} />
                       <Route path="/add-account" element={<AddAccount />} />
                       <Route path="/profile" element={<ProfilePage />} />
                     </Routes>

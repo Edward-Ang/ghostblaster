@@ -12,7 +12,7 @@ function Home() {
         className={`text-black p-4 shadow-md sticky top-0 ${theme === "dark" ? "text-white var(--background)" : "text-black var(--background)"}`}
         style={{ zIndex: 2 }}
       >
-        <h1 className="text-lg font-bold">Home</h1>
+        <h1 className="text-lg font-bold">Dashboard</h1>
       </header>
       <hr className={`${theme === "dark" ? "border-gray-700 shadow-md" : "border-gray-300"}`} />
       <div className="flex flex-col w-full">

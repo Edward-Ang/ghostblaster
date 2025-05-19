@@ -12,6 +12,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function Signup() {
   const [email, setEmail] = useState("");
@@ -20,6 +21,7 @@ function Signup() {
   const [error, setError] = useState("");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,9 +59,13 @@ function Signup() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div
+      className={`flex items-center justify-center min-h-screen ${
+        theme === "dark" ? "bg-[var(--background)]" : "bg-gray-100"
+      }`}
+    >
       <Card className="w-full max-w-sm">
-        <CardHeader>
+        <CardHeader className="rounded-xl">
           <CardTitle className="text-2xl font-bold">Signup</CardTitle>
         </CardHeader>
         <CardContent>
@@ -79,6 +85,9 @@ function Signup() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                className={`${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
               />
             </div>
             <div className="space-y-2">
@@ -91,6 +100,9 @@ function Signup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className={`${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
               />
             </div>
             <div className="space-y-2">
@@ -103,16 +115,24 @@ function Signup() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className={`${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className={`w-full bg-blue-600 hover:bg-blue-700 ${
+                theme === "dark" ? "text-white" : ""
+              }`}
+            >
               Signup
             </Button>
           </form>
         </CardContent>
-        <CardFooter>
-          <p className="text-sm text-gray-600">
-            Already have an account?
+        <CardFooter className="rounded-xl">
+          <p className="text-sm text-gray-500">
+            Already have an account?{" "}
             <a href="/login" className="text-blue-500 hover:underline">
               Log in
             </a>

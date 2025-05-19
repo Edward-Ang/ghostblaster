@@ -12,6 +12,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTheme } from "@/contexts/ThemeContext";
 
 function Login({ setIsAuthenticated }) {
   const [email, setEmail] = useState("");
@@ -20,6 +21,7 @@ function Login({ setIsAuthenticated }) {
   const [registered, setRegistered] = useState(""); // State for isRegistered
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   // Fetch the value of isRegistered from localStorage when the component mounts
   useEffect(() => {
@@ -72,9 +74,13 @@ function Login({ setIsAuthenticated }) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div
+      className={`flex items-center justify-center min-h-screen ${
+        theme === "dark" ? "bg-[var(--background)]" : "bg-gray-100"
+      }`}
+    >
       <Card className="w-full max-w-sm">
-        <CardHeader>
+        <CardHeader className="rounded-xl">
           <CardTitle className="text-2xl font-bold">Login</CardTitle>
         </CardHeader>
         <CardContent>
@@ -102,6 +108,9 @@ function Login({ setIsAuthenticated }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className={`${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
               />
             </div>
             <div className="space-y-2">
@@ -114,15 +123,23 @@ function Login({ setIsAuthenticated }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className={`${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className={`w-full bg-blue-600 hover:bg-blue-700 ${
+                theme === "dark" ? "text-white" : ""
+              }`}
+            >
               Login
             </Button>
           </form>
         </CardContent>
-        <CardFooter>
-          <p className="text-sm text-gray-600">
+        <CardFooter className="rounded-xl">
+          <p className="text-sm text-gray-500">
             Don't have an account?{" "}
             <button
               onClick={handleSignUpClick}

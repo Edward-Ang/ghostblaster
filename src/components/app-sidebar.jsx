@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-import { FaInstagram } from "react-icons/fa";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { FaMeta } from "react-icons/fa6";
 import { cn } from "@/lib/utils";
 import logo from "../assets/logo.png";
@@ -37,6 +37,11 @@ const staticItems = [
     title: "Instagram",
     icon: FaInstagram,
     url: "/instagram",
+  },
+  {
+    title: "WhatsApp",
+    icon: FaWhatsapp,
+    url: "/whatsapp",
   },
   {
     title: "Settings",
@@ -112,7 +117,9 @@ export function AppSidebar({ setIsAuthenticated }) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -right-12 top-2 w-10 h-10 z-10"
+          className={`absolute -right-12 top-2 w-10 h-10 z-10 ${
+            theme === "dark" ? "hover:!bg-[var(--bg-dark-card-hover)]" : ""
+          }`}
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <FiSidebar className="h-4 w-4" />
@@ -121,7 +128,9 @@ export function AppSidebar({ setIsAuthenticated }) {
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          className="fixed right-4 top-2 w-10 h-10 z-10"
+          className={`fixed right-4 top-2 w-10 h-10 z-10 ${
+            theme === "dark" ? "hover:!bg-[var(--bg-dark-card-hover)]" : ""
+          }`}
           aria-label="Toggle theme"
         >
           {theme === "light" ? (
@@ -159,7 +168,11 @@ export function AppSidebar({ setIsAuthenticated }) {
                 isCollapsed
                   ? "w-10 h-10 px-0 flex items-center justify-center"
                   : "w-full justify-start",
-                location.pathname === "/home" && isCollapsed && "shadow-md"
+                location.pathname === "/home" &&
+                  isCollapsed &&
+                  (theme === "dark"
+                    ? "shadow-[0px_4px_10px_rgba(0,0,0,0.6)] bg-[var(--bg-dark-card-hover)]"
+                    : "shadow-md")
               )}
               asChild
             >
@@ -191,7 +204,9 @@ export function AppSidebar({ setIsAuthenticated }) {
                           : "w-full justify-start",
                         location.pathname === item.url &&
                           isCollapsed &&
-                          "shadow-md"
+                          (theme === "dark"
+                            ? "shadow-[0px_4px_10px_rgba(0,0,0,0.6)] bg-[var(--bg-dark-card-hover)]"
+                            : "shadow-md")
                       )}
                       asChild
                     >
@@ -266,17 +281,38 @@ export function AppSidebar({ setIsAuthenticated }) {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[175px] mb-3">
+            <DropdownMenuContent
+              align="start"
+              className={`w-[175px] mb-3 ${
+                theme === "dark"
+                  ? "border-[var(--border-dark-card)] bg-[var(--bg-dark-card)]"
+                  : ""
+              }`}
+            >
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem
+                className={`${
+                  theme === "dark"
+                    ? "hover:!bg-[var(--bg-dark-card-hover)]"
+                    : ""
+                }`}
+                asChild
+              >
                 <Link to="/profile">
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className={`${
+                  theme === "dark"
+                    ? "hover:!bg-[var(--bg-dark-card-hover)]"
+                    : ""
+                }`}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </DropdownMenuItem>

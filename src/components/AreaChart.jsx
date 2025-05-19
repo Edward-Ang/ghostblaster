@@ -116,7 +116,7 @@ export function AreaChartComponent() {
     >
       <CardHeader
         className={`flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row ${
-          theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+          theme === "dark" ? "border-[var(--border-dark-card)] rounded-t-xl" : ""
         }`}
       >
         <div className="grid flex-1 gap-1 text-center sm:text-left">
@@ -147,7 +147,7 @@ export function AreaChartComponent() {
             <SelectItem
               value="90d"
               className={`rounded-lg ${
-                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)]" : ""
+                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]" : ""
               }`}
             >
               Last 3 months
@@ -155,7 +155,7 @@ export function AreaChartComponent() {
             <SelectItem
               value="30d" 
               className={`rounded-lg ${
-                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)]" : ""
+                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]" : ""
               }`}
             >
               Last 30 days
@@ -163,7 +163,7 @@ export function AreaChartComponent() {
             <SelectItem
               value="7d"
               className={`rounded-lg ${
-                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)]" : ""
+                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]" : ""
               }`}
             >
               Last 7 days
@@ -171,7 +171,7 @@ export function AreaChartComponent() {
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-2 sm:pt-2">
+      <CardContent className="px-2 pb-2 pt-4 sm:px-2 sm:pt-2 rounded-xl">
         <div
           className={`mb-2 grid grid-cols-2 gap-2 rounded-2xl p-2 shadow-sm ${
             theme === "dark" ? "bg-[var(--bg-dark-card-hover)]" : "bg-muted"
@@ -179,7 +179,7 @@ export function AreaChartComponent() {
         >
           <div
             className={`flex flex-col items-center justify-center rounded-xl p-2 shadow ${
-              theme === "dark" ? "bg-[var(--bg-dark-card)]" : "bg-background"
+              theme === "dark" ? "bg-[var(--bg-dark-card)]" : "bg-white"
             }`}
           >
             <p className="text-sm text-muted-foreground">BS Total</p>
@@ -189,7 +189,7 @@ export function AreaChartComponent() {
           </div>
           <div
             className={`flex flex-col items-center justify-center rounded-xl p-2 shadow ${
-              theme === "dark" ? "bg-[var(--bg-dark-card)]" : "bg-background"
+              theme === "dark" ? "bg-[var(--bg-dark-card)]" : "bg-white"
             }`}
           >
             <p className="text-sm text-muted-foreground">IG Total</p>
