@@ -33,7 +33,7 @@ function Signup() {
     }
 
     try {
-      const response = await fetch(`${backendUrl}/signup`, {
+      const response = await fetch(`${backendUrl}/user/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

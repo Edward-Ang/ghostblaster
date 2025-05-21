@@ -11,7 +11,7 @@ export const columns = [
   columnHelper.accessor("count", {
     header: "Blast Count",
   }),
-  columnHelper.accessor("updated_at", {
+  columnHelper.accessor("updatedAt", {
     header: "Last Blast",
   }),
   columnHelper.accessor("status", {

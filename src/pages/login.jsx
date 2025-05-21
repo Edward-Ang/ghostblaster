@@ -41,7 +41,7 @@ function Login({ setIsAuthenticated }) {
     }
 
     try {
-      const response = await fetch(`${backendUrl}/login`, {
+      const response = await fetch(`${backendUrl}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,14 +54,16 @@ function Login({ setIsAuthenticated }) {
 
       const data = await response.json(); // Parse the JSON response
 
-      if (response.ok) {
+      if (data.status) {
         localStorage.setItem("isAuthenticated", "true"); // Set authentication state
-        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("userId", data.userData.userId);
+        localStorage.setItem("username", data.userData.username);
+        localStorage.setItem("email", data.userData.email);
         setIsAuthenticated(true); // Update authentication state in App.js
         localStorage.removeItem("isRegistered"); // Remove isRegistered from localStorage
         navigate("/home"); // Redirect to home page after successful login
       } else {
-        setError(data.error || "Invalid email or password"); // Use the error message from the backend
+        setError(data.message || "Invalid email or password"); // Use the error message from the backend
       }
     } catch (err) {
       setError("An error occurred. Please try again.");

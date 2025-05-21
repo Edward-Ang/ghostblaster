@@ -72,7 +72,7 @@ function Instagram() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [secret, setSecret] = useState("");
-  const [userid, setUserid] = useState("");
+  const [userId, setUserId] = useState("");
   const fileInputRef = useRef();
   const contentRef = useRef();
   const limitRef = useRef(null);
@@ -93,7 +93,7 @@ function Instagram() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId) {
-      setUserid(userId); // Set the state with the value from localStorage
+      setUserId(userId); // Set the state with the value from localStorage
     }
 
     const fetchData = async () => {
@@ -134,7 +134,7 @@ function Instagram() {
         ),
       };
     }
-    if (col.accessorKey === "updated_at") {
+    if (col.accessorKey === "updatedAt") {
       return {
         ...col,
         header: () => <div className="font-bold m-2">Last Blast</div>,
@@ -173,7 +173,7 @@ function Instagram() {
             <div className="text-left m-2">
               {(() => {
                 switch (status) {
-                  case "1":
+                  case 1:
                     return (
                       <Badge
                         variant="success"
@@ -186,7 +186,7 @@ function Instagram() {
                         Completed
                       </Badge>
                     );
-                  case "2":
+                  case 2:
                     return (
                       <Badge
                         variant="warning"
@@ -199,7 +199,7 @@ function Instagram() {
                         Not Started
                       </Badge>
                     );
-                  case "3":
+                  case 3:
                     return (
                       <Badge
                         variant="warning"
@@ -212,7 +212,7 @@ function Instagram() {
                         Failed
                       </Badge>
                     );
-                  case "4":
+                  case 4:
                     return (
                       <Badge
                         variant="warning"
@@ -225,7 +225,7 @@ function Instagram() {
                         Stopped
                       </Badge>
                     );
-                  case "5":
+                  case 5:
                     return (
                       <Badge
                         variant="warning"
@@ -238,7 +238,7 @@ function Instagram() {
                         New
                       </Badge>
                     );
-                  case "6":
+                  case 6:
                     return (
                       <Badge
                         variant="warning"
@@ -660,27 +660,21 @@ function Instagram() {
   const getAllPage = async (userId) => {
     try {
       const response = await fetch(
-        `${backendUrl}/getAllPage?platform=ig&userid=${userId}`,
+        `${backendUrl}/instagram/getAllAccount`,
         {
-          method: "GET",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            userId
+        }),
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-
-        // Add null check for userId
-        if (!userId) {
-          console.error("userId is undefined");
-          return;
-        }
-
-        console.log("UserId from localStorage:", userId);
-
-        const fetchedData = data.result;
+        const fetchedData = data.data;
         console.log("Data from API:", fetchedData);
         setData(fetchedData);
 
@@ -709,15 +703,18 @@ function Instagram() {
 
   const resetStatus = async () => {
     try {
-      const response = await fetch(`${backendUrl}/resetIgStatus`, {
-        method: "GET",
+      const response = await fetch(`${backendUrl}/instagram/resetStatus`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          userId
+        })
       });
 
       if (response.ok) {
-        await getAllPage(userid);
+        await getAllPage(userId);
         toast({
           variant: "success",
           description: (
@@ -755,7 +752,7 @@ function Instagram() {
     formData.append("content", content);
     formData.append("limit", limit);
     formData.append("username", username);
-    formData.append("userid", userid);
+    formData.append("userid", userId);
     formData.append("process_id", crypto.randomUUID());
 
     try {
@@ -803,7 +800,7 @@ function Instagram() {
             });
           }
         }
-        await getAllPage(userid);
+        await getAllPage(userId);
       } else {
         console.error("Failed to blast:", response.statusText);
         toast({
@@ -815,7 +812,7 @@ function Instagram() {
             </div>
           ),
         });
-        await getAllPage(userid);
+        await getAllPage(userId);
       }
     } catch (error) {
       console.error(error);
@@ -828,7 +825,7 @@ function Instagram() {
           </div>
         ),
       });
-      await getAllPage(userid);
+      await getAllPage(userId);
     } finally {
       console.log(runningAssetIds);
       console.log(username);
@@ -852,7 +849,7 @@ function Instagram() {
         },
         body: JSON.stringify({
           username: username,
-          userid: userid,
+          userid: userId,
         }),
       });
 
@@ -867,7 +864,7 @@ function Instagram() {
           ),
         });
 
-        await getAllPage(userid);
+        await getAllPage(userId);
       } else {
         const errorData = await response.json();
         console.log("here", errorData.error);
@@ -880,7 +877,7 @@ function Instagram() {
             </div>
           ),
         });
-        await getAllPage(userid);
+        await getAllPage(userId);
       }
     } catch (error) {
       console.log("Stop blast: ", error.message);
@@ -919,7 +916,7 @@ function Instagram() {
 
     // Simulate a login request
     try {
-      const response = await fetch(`${backendUrl}/addIgAccount`, {
+      const response = await fetch(`${backendUrl}/instagram/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -928,7 +925,7 @@ function Instagram() {
           username: username,
           password: password,
           secret: secret,
-          userid: userid,
+          userId: userId,
         }),
       });
 
@@ -936,7 +933,7 @@ function Instagram() {
       console.log("data: ", data);
 
       if (data.status) {
-        getAllPage(userid);
+        getAllPage(userId);
         setOpen(!open);
         resetFields();
         toast({
@@ -944,13 +941,13 @@ function Instagram() {
           description: (
             <div className="flex items-center gap-2">
               <CheckCircle2 className="text-green-500 h-5 w-5" />
-              <span>Account added successfully!</span>
+              <span>{data.message}</span>
             </div>
           ),
         });
       } else {
         toast({
-          description: "Account already exist.",
+          description: data.message,
           variant: "error",
         });
       }
@@ -983,21 +980,22 @@ function Instagram() {
     if (!accountToDelete) return;
 
     try {
-      const response = await fetch(`${backendUrl}/deleteIgAccount`, {
+      const response = await fetch(`${backendUrl}/instagram/delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: accountToDelete, userid }),
+        body: JSON.stringify({ username: accountToDelete, userId }),
       });
 
-      if (response.ok) {
+      const result =  await response.json();
+      if (result.status) {
         toast({
           variant: "success",
           description: (
             <div className="flex items-center gap-2">
               <CheckCircle2 className="text-green-500 h-5 w-5" />
-              <span>Account deleted successfully!</span>
+              <span>{result.message}</span>
             </div>
           ),
         });
@@ -1007,14 +1005,14 @@ function Instagram() {
         );
       } else {
         toast({
-          description: "Failed to delete account!",
+          description: result.message,
           variant: "error",
         });
       }
     } catch (error) {
       console.error("Error deleting account:", error);
       toast({
-        description: "An error occurred while deleting.",
+        description: result.message,
         variant: "error",
       });
     } finally {

@@ -55,42 +55,42 @@ export function AppSidebar({ setIsAuthenticated }) {
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const userid = localStorage.getItem("userId");
+  const username = localStorage.getItem("username");
+  const useremail = localStorage.getItem("email");
   const [expandedItems, setExpandedItems] = useState({});
-  const [username, setUsername] = useState("");
-  const [userEmail, setUserEmail] = useState("");
   const [items, setItems] = useState(staticItems);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      if (!userid) {
-        console.error("userid is missing");
-        return;
-      }
+  // useEffect(() => {
+  //   const fetchCurrentUser = async () => {
+  //     if (!userid) {
+  //       console.error("userid is missing");
+  //       return;
+  //     }
 
-      try {
-        const response = await fetch(
-          `${backendUrl}/getCurrentUser?userid=${userid}`
-        );
-        const data = await response.json();
+  //     try {
+  //       const response = await fetch(
+  //         `${backendUrl}/getCurrentUser?userid=${userid}`
+  //       );
+  //       const data = await response.json();
 
-        if (response.ok) {
-          setUsername(data.user.username);
-          setUserEmail(data.user.email);
-        } else {
-          console.error("Failed to fetch current user:", data.error);
-        }
-      } catch (err) {
-        console.error(
-          "An error occurred while fetching the current user:",
-          err
-        );
-      }
-    };
+  //       if (response.ok) {
+  //         setUsername(data.user.username);
+  //         setUserEmail(data.user.email);
+  //       } else {
+  //         console.error("Failed to fetch current user:", data.error);
+  //       }
+  //     } catch (err) {
+  //       console.error(
+  //         "An error occurred while fetching the current user:",
+  //         err
+  //       );
+  //     }
+  //   };
 
-    fetchCurrentUser();
-  }, []);
+  //   fetchCurrentUser();
+  // }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
@@ -275,7 +275,7 @@ export function AppSidebar({ setIsAuthenticated }) {
                     <div className="flex flex-col text-sm text-left">
                       <span className="font-semibold">{username}</span>
                       <span className="text-xs text-muted-foreground">
-                        Test
+                        {useremail}
                       </span>
                     </div>
                     <ChevronsUpDown className="ml-auto h-4 w-4" />
