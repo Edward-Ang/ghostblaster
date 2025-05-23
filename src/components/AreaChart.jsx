@@ -37,25 +37,33 @@ export function AreaChartComponent() {
   const [chartData, setChartData] = React.useState([]);
   const [timeRange, setTimeRange] = React.useState("90d");
   const [loading, setLoading] = React.useState(true);
+  const userId = localStorage.getItem("userId");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch data from your database
   React.useEffect(() => {
     async function fetchChartData() {
       try {
-        const response = await fetch(`${backendUrl}/getReportData`);
+        const response = await fetch(`${backendUrl}/report/getAllUserReport`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: userId,
+          }),
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch chart data");
         }
         const data = await response.json();
-        const fetchedData = data.result;
 
         // Transform data to match chart expectations
-        const transformedData = fetchedData
+        const transformedData = data
           .map((item) => ({
             date: item.date,
-            bs: item.bs ?? 0,
-            ig: item.ig ?? 0,
+            bs: item.businessSuite ?? 0,
+            ig: item.instagram ?? 0,
           }))
           .filter(
             (item) => (item.bs && item.bs !== 0) || (item.ig && item.ig !== 0)
@@ -116,7 +124,9 @@ export function AreaChartComponent() {
     >
       <CardHeader
         className={`flex items-center gap-2 space-y-0 border-b py-4 sm:flex-row ${
-          theme === "dark" ? "border-[var(--border-dark-card)] rounded-t-xl" : ""
+          theme === "dark"
+            ? "border-[var(--border-dark-card)] rounded-t-xl"
+            : ""
         }`}
       >
         <div className="grid flex-1 gap-1 text-center sm:text-left">
@@ -141,21 +151,27 @@ export function AreaChartComponent() {
           </SelectTrigger>
           <SelectContent
             className={`rounded-xl ${
-              theme === "dark" ? " bg-[var(--bg-dark-card)] border-[var(--border-dark-card)]" : ""
+              theme === "dark"
+                ? " bg-[var(--bg-dark-card)] border-[var(--border-dark-card)]"
+                : ""
             }`}
           >
             <SelectItem
               value="90d"
               className={`rounded-lg ${
-                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]" : ""
+                theme === "dark"
+                  ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]"
+                  : ""
               }`}
             >
               Last 3 months
             </SelectItem>
             <SelectItem
-              value="30d" 
+              value="30d"
               className={`rounded-lg ${
-                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]" : ""
+                theme === "dark"
+                  ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]"
+                  : ""
               }`}
             >
               Last 30 days
@@ -163,7 +179,9 @@ export function AreaChartComponent() {
             <SelectItem
               value="7d"
               className={`rounded-lg ${
-                theme === "dark" ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]" : ""
+                theme === "dark"
+                  ? "border-[var(--border-dark-card)] hover:bg-[var(--bg-dark-card-hover)] hover:!bg-[var(--bg-dark-card-hover)]"
+                  : ""
               }`}
             >
               Last 7 days

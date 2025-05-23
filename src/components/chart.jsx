@@ -35,6 +35,7 @@ export function Chart() {
   const [chartData, setChartData] = React.useState([]);
   const [activeChart, setActiveChart] = React.useState("bs");
   const [loading, setLoading] = React.useState(true);
+  const userId = localStorage.getItem("userId");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { theme } = useTheme(); // Get the current theme
 
@@ -42,19 +43,26 @@ export function Chart() {
   React.useEffect(() => {
     async function fetchChartData() {
       try {
-        const response = await fetch(`${backendUrl}/getReportData`); // Replace with your actual API endpoint
+        const response = await fetch(`${backendUrl}/report/getAllUserReport`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: userId,
+          }),
+        });
+
         if (!response.ok) {
           throw new Error("Failed to fetch chart data");
         }
         const data = await response.json();
-        const fetchedData = data.result;
-
         // Transform data to match chart expectations
-        const transformedData = fetchedData
+        const transformedData = data
           .map((item) => ({
             date: item.date,
-            bs: item.bs ?? 0, // Ensure `bs` is 0 if null/undefined
-            ig: item.ig ?? 0, // Ensure `ig` is 0 if null/undefined
+            bs: item.businessSuite ?? 0, // Ensure `bs` is 0 if null/undefined
+            ig: item.instagram ?? 0, // Ensure `ig` is 0 if null/undefined
           }))
           .filter(
             (item) => (item.bs && item.bs !== 0) || (item.ig && item.ig !== 0)
@@ -109,7 +117,9 @@ export function Chart() {
     >
       <CardHeader
         className={`flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row ${
-          theme === "dark" ? "border-[var(--border-dark-card)] rounded-t-xl" : ""
+          theme === "dark"
+            ? "border-[var(--border-dark-card)] rounded-t-xl"
+            : ""
         }`}
       >
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
@@ -195,7 +205,11 @@ export function Chart() {
                 />
               }
             />
-            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} activeBar={{ fillOpacity: 0.9 }} />
+            <Bar
+              dataKey={activeChart}
+              fill={`var(--color-${activeChart})`}
+              activeBar={{ fillOpacity: 0.9 }}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>

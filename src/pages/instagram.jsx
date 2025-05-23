@@ -73,6 +73,7 @@ function Instagram() {
   const [password, setPassword] = useState("");
   const [secret, setSecret] = useState("");
   const [userId, setUserId] = useState("");
+  const categoryRef = useRef();
   const fileInputRef = useRef();
   const contentRef = useRef();
   const limitRef = useRef(null);
@@ -88,6 +89,9 @@ function Instagram() {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [accountToView, setAccountToView] = useState(null);
   const [accountToViewStatus, setAccountToViewStatus] = useState(null);
+  const [category, setCategory] = useState("primary");
+  const [blastDialogOpen, setBlastDialogOpen] = useState(false);
+  const [screenshotTimestamp, setScreenshotTimestamp] = useState(Date.now());
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
@@ -103,6 +107,12 @@ function Instagram() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (viewDialogOpen) {
+      setScreenshotTimestamp(Date.now());
+    }
+  }, [viewDialogOpen]);
 
   const filteredData = data
     .filter((item) =>
@@ -167,7 +177,7 @@ function Instagram() {
           const isThisRowStopping = stoppingAssetIds.has(username);
 
           // Override status to "Blasting" if the username is in runningAssetIds
-          const status = isBlasting ? "6" : info.getValue();
+          const status = isBlasting ? 6 : info.getValue();
 
           return (
             <div className="text-left m-2">
@@ -299,145 +309,49 @@ function Instagram() {
                     <MdElectricBolt />
                     Blast
                   </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleStopBlast(username)}
-                    disabled={isThisRowStopping}
-                    className="h-9 w-9 focus:none focus:ring-0"
-                  >
-                    <StopCircleIcon />
-                  </Button>
+                  <div className="flex gap-4">
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleView(username, currentStatus)}
+                            className={`h-9 w-9 focus:none focus:ring-0 hover:bg-green-600 hover:text-white ${
+                              theme === "dark"
+                                ? "border-[var(--border-dark-card)]"
+                                : ""
+                            }`}
+                          >
+                            <GrView />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View Screenshot</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleStopBlast(username)}
+                      disabled={isThisRowStopping}
+                      className="h-9 w-9 focus:none focus:ring-0"
+                    >
+                      <StopCircleIcon />
+                    </Button>
+                  </div>
                 </>
               ) : (
                 <>
-                  {/* <Dialog
-                    open={openBlast}
-                    onOpenChange={(isOpen) => setOpenBlast(isOpen)}
+                  <Button
+                    className={`h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700 ${
+                      theme === "dark" ? "text-white" : ""
+                    }`}
+                    onClick={() => handleBlastDialog(username)}
                   >
-                    <DialogTitle>
-                      <VisuallyHidden>Start Blast Dialog</VisuallyHidden>
-                    </DialogTitle>
-                    <DialogTrigger asChild>
-                      <Button className="h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700">
-                        <MdElectricBolt />
-                        Blast
-                      </Button>
-                    </DialogTrigger>
-                    <DialogOverlay className="bg-black/20" />
-                    <DialogContent
-                      className="sm:max-w-[500px]"
-                      onPointerDownOutside={(e) => e.preventDefault()}
-                    >
-                      <Card className="border-none shadow-none">
-                        <CardHeader>
-                          <CardTitle className="text-2xl font-bold">
-                            Start to Blast
-                          </CardTitle>
-                          <DialogDescription>
-                            <strong>@{username}</strong>
-                          </DialogDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <form
-                            onSubmit={(e) => {
-                              e.preventDefault();
-                              handleBlast(username);
-                            }}
-                            className="flex flex-col gap-4"
-                          >
-                            <div className="flex flex-col gap-2">
-                              <Label
-                                htmlFor="pageType"
-                                className="text-left ml-1"
-                              >
-                                Page Type
-                                <span
-                                  aria-hidden="true"
-                                  className="text-red-500"
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </Label>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                              <Label htmlFor="image" className="text-left ml-1">
-                                Image
-                              </Label>
-                              <Input
-                                ref={fileInputRef}
-                                id="image"
-                                type="file"
-                                accept="image/*"
-                                className="w-full text-gray-500 cursor-pointer"
-                              />
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                              <Label
-                                htmlFor="content"
-                                className="text-left ml-1"
-                              >
-                                Content
-                                <span
-                                  aria-hidden="true"
-                                  className="text-red-500"
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </Label>
-                              <Textarea
-                                ref={contentRef}
-                                id="content"
-                                placeholder="Enter your blast content"
-                                className="min-h-[200px] max-h-[500px]"
-                                required
-                              />
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                              <Label htmlFor="limit" className="text-left ml-1">
-                                Limit
-                                <span
-                                  aria-hidden="true"
-                                  className="text-red-500"
-                                >
-                                  {" "}
-                                  *
-                                </span>
-                              </Label>
-                              <Input
-                                ref={limitRef}
-                                id="limit"
-                                type="number"
-                                placeholder="Max: 50"
-                                className="w-full"
-                                onChange={(e) => {
-                                  let value = e.target.value;
-                                  if (value < 1 || value > 50)
-                                    e.target.value = "";
-                                }}
-                                required
-                              />
-                            </div>
-
-                            <div className="flex">
-                              <Button
-                                type="submit"
-                                className="w-full bg-blue-600 hover:bg-blue-700"
-                              >
-                                Blast
-                              </Button>
-                            </div>
-                          </form>
-                        </CardContent>
-                      </Card>
-                    </DialogContent>
-                  </Dialog> */}
-
-                  <Dialog>
+                    <MdElectricBolt />
+                    Blast
+                  </Button>
+                  {/* <Dialog>
                     <DialogTrigger asChild>
                       <Button
                         className={`h-9 focus:none focus:ring-0 bg-blue-600 hover:bg-blue-700 ${
@@ -467,39 +381,37 @@ function Instagram() {
                           </DialogDescription>
                         </DialogHeader>
 
-                        {/* <div className="flex flex-col gap-2">
-                          <Label htmlFor="image" className="text-left ml-1">
-                            Page Type
+                        <div className="flex flex-col gap-2">
+                          <Label htmlFor="category" className="text-left ml-1">
+                            Category
                           </Label>
-                          <div className="grid grid-cols-2 gap-2 p-1 rounded-lg border bg-muted">
-                            <button
-                              type=""
-                              onClick={(e) => {
-                                handleSelect(e, "general");
-                              }}
-                              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                                selected === "general"
-                                  ? "bg-background text-foreground shadow-sm"
-                                  : "text-muted-foreground hover:bg-background/50"
-                              }`}
-                            >
-                              General
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                handleSelect(e, "primary");
-                              }}
-                              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                                selected === "primary"
-                                  ? "bg-background text-foreground shadow-sm"
-                                  : "text-muted-foreground hover:bg-background/50"
-                              }`}
-                            >
-                              Primary
-                            </button>
-                          </div>
-                        </div> */}
+                          <Select
+                            defaultValue="primary"
+                            value={category}
+                            onValueChange={(value) => {
+                              setCategory(value);
+                            }}
+                            onOpenChange={(open) => {
+                              if (!open) return;
+                              // Prevent closing when interacting with Select
+                              const selectElement =
+                                document.querySelector(".your-select-class");
+                              if (selectElement) {
+                                selectElement.addEventListener("click", (e) =>
+                                  e.stopPropagation()
+                                );
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-full your-select-class">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="primary">Primary</SelectItem>
+                              <SelectItem value="general">General</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
                         <div className="flex flex-col gap-2">
                           <Label htmlFor="image" className="text-left ml-1">
@@ -577,7 +489,7 @@ function Instagram() {
                         </DialogFooter>
                       </form>
                     </DialogContent>
-                  </Dialog>
+                  </Dialog> */}
 
                   <div className="flex gap-4">
                     <TooltipProvider delayDuration={100}>
@@ -659,18 +571,15 @@ function Instagram() {
   // Update getAllPage to also handle running states
   const getAllPage = async (userId) => {
     try {
-      const response = await fetch(
-        `${backendUrl}/instagram/getAllAccount`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId
+      const response = await fetch(`${backendUrl}/instagram/getAllAccount`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
         }),
-        }
-      );
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -709,8 +618,8 @@ function Instagram() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId
-        })
+          userId,
+        }),
       });
 
       if (response.ok) {
@@ -734,6 +643,8 @@ function Instagram() {
   };
 
   const handleBlast = async (username) => {
+    setBlastDialogOpen(false);
+    // setIsBlasting(true);
     const file = fileInputRef.current.files[0];
     const content = contentRef.current.value;
     const limit = limitRef.current.value;
@@ -752,18 +663,19 @@ function Instagram() {
     formData.append("content", content);
     formData.append("limit", limit);
     formData.append("username", username);
-    formData.append("userid", userId);
-    formData.append("process_id", crypto.randomUUID());
+    formData.append("userId", userId);
+    formData.append("category", category);
+    // formData.append("process_id", crypto.randomUUID());
 
     try {
-      const response = await fetch(`${backendUrl}/blastIG`, {
+      const response = await fetch(`${backendUrl}/instagram/blast`, {
         method: "POST",
         body: formData,
       });
 
       if (response.ok) {
         const result = await response.json();
-        if (result.result.success) {
+        if (result.success) {
           console.log("Success:", result);
           toast({
             variant: "success",
@@ -771,14 +683,14 @@ function Instagram() {
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
                 <strong>{username}</strong> blast{" "}
-                <strong>{result.result.count}</strong> users successfully!
+                <strong>{result.count}</strong> users successfully!
               </div>
             ),
           });
         } else {
           console.log("Error: ", result);
-          console.log("result.stop: ", result.result.stop);
-          if (result.result.stop) {
+          console.log("result.stop: ", result.stop);
+          if (result.stop) {
             toast({
               variant: "warning",
               description: (
@@ -825,6 +737,7 @@ function Instagram() {
           </div>
         ),
       });
+      // setIsBlasting(false);
       await getAllPage(userId);
     } finally {
       console.log(runningAssetIds);
@@ -834,7 +747,14 @@ function Instagram() {
         delete newState[username];
         return newState;
       });
+      setCategory("primary");
+      // setIsBlasting(false);
     }
+  };
+
+  const handleBlastDialog = async (username) => {
+    setUsername(username);
+    setBlastDialogOpen(true);
   };
 
   const handleStopBlast = async (username) => {
@@ -842,14 +762,14 @@ function Instagram() {
     setStoppingAssetIds((prev) => new Set([...prev, username]));
 
     try {
-      const response = await fetch(`${backendUrl}/cancelIG`, {
+      const response = await fetch(`${backendUrl}/instagram/stopBlast`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: username,
-          userid: userId,
+          userId: userId,
         }),
       });
 
@@ -988,7 +908,7 @@ function Instagram() {
         body: JSON.stringify({ username: accountToDelete, userId }),
       });
 
-      const result =  await response.json();
+      const result = await response.json();
       if (result.status) {
         toast({
           variant: "success",
@@ -1236,7 +1156,7 @@ function Instagram() {
         <DialogOverlay className="bg-black/60" />
         <DialogContent
           className="sm:max-w-[825px] border-[var(--border-dark-card)]"
-          onPointerDownOutside={(e) => e.preventDefault()}
+          showClose={false}
         >
           <DialogHeader>
             <DialogTitle>View Screenshot</DialogTitle>
@@ -1249,7 +1169,7 @@ function Instagram() {
             <div className="relative w-fit h-fit max-w-[750px] mx-auto">
               {accountToView ? (
                 <img
-                  src={`${backendUrl}/screenshots/${accountToView}_${accountToViewStatus}.png`}
+                  src={`${backendUrl}/screenshots/${accountToView}_${userId}.png?ts=${screenshotTimestamp}`}
                   alt="Screenshot"
                   className={`w-full h-full object-contain ${
                     theme === "dark"
@@ -1271,17 +1191,119 @@ function Instagram() {
               )}
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setViewDialogOpen(false)}
-              className={`${
-                theme === "dark" ? "border-[var(--border-dark-card)]" : ""
-              }`}
-            >
-              Close
-            </Button>
-          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={blastDialogOpen} onOpenChange={setBlastDialogOpen}>
+        <DialogOverlay className="bg-black/40" />
+        <DialogContent
+          className="sm:max-w-[500px] min-h-[400px]"
+          onPointerDownOutside={(e) => e.preventDefault()} // Prevents accidental closing
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault(); // Prevents form from submitting normally
+              handleBlast(username); // Call the blast function
+            }}
+            className="flex flex-col gap-4 py-4"
+          >
+            <DialogHeader>
+              <DialogTitle>Start to blast</DialogTitle>
+              <DialogDescription>
+                <strong>@{username}</strong>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="category" className="text-left ml-1">
+                Category
+              </Label>
+              <Select
+                defaultValue="primary"
+                value={category}
+                onValueChange={(value) => {
+                  setCategory(value);
+                }}
+              >
+                <SelectTrigger className="w-full your-select-class">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="primary">Primary</SelectItem>
+                  <SelectItem value="general">General</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="image" className="text-left ml-1">
+                Image
+              </Label>
+              <Input
+                ref={fileInputRef}
+                id="image"
+                type="file"
+                accept="image/*"
+                className={`w-full text-center placeholder:text-center text-gray-500 cursor-pointer ${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="content" className="text-left ml-1">
+                Content{" "}
+                <span aria-hidden="true" className="text-red-500">
+                  *
+                </span>
+              </Label>
+              <Textarea
+                ref={contentRef}
+                id="content"
+                placeholder="Enter your blast content"
+                className={`min-h-[200px] max-h-[500px] ${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="limit" className="text-left ml-1">
+                Limit{" "}
+                <span aria-hidden="true" className="text-red-500">
+                  *
+                </span>
+              </Label>
+              <Input
+                ref={limitRef} // Using ref instead of state
+                id="limit"
+                type="number"
+                placeholder="Max: 50"
+                className={`w-full ${
+                  theme === "dark" ? "border-[var(--border-dark-card)]" : ""
+                }`}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  if (value < 1 || value > 50) {
+                    e.target.value = ""; // Reset input if out of range
+                  }
+                }}
+                required
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="submit"
+                className={`bg-blue-600 hover:bg-blue-700 ${
+                  theme === "dark" ? "text-white" : ""
+                }`}
+              >
+                Blast
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

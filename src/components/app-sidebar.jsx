@@ -32,6 +32,7 @@ const staticItems = [
   {
     title: "Business Suite",
     icon: FaMeta,
+    url: "/business-suite"
   },
   {
     title: "Instagram",
@@ -184,10 +185,10 @@ export function AppSidebar({ setIsAuthenticated }) {
               </Link>
             </Button>
 
-            <div className="py-2">
+            <div className="w-full py-2">
               <h4
                 className={cn(
-                  "mb-1 px-2 text-xs font-semibold text-left text-gray-500",
+                  "mb-1 px-4 text-xs font-semibold text-left text-gray-500",
                   isCollapsed && "sr-only"
                 )}
               >
